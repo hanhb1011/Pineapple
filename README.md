@@ -1,1 +1,2 @@
-# Pineapple
+## Capstone Design Team Pineapple ##
+
