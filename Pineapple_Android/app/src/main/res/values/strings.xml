@@ -4,4 +4,10 @@
     <string name="speech_not_supported">음성인식 지원이 되지 않는 기기입니다.\n구글 서비스를 업데이트해주세요.</string>
     <string name="internet_connection_failed">"인터넷 연결을 확인해주세요."</string>
     <string name="tap_to_input_string">탭하여 음성 입력</string>
+    <string name="bluetooth_not_support">블루투스 지원이 되지 않는 기기입니다.</string>
+    <string name="bluetooth_not_found">블루투스 기기를 찾을 수 없습니다.</string>
+    <string name="bluetooth_disabled">블루투스 기능을 활성화 해주십시오.</string>
+    <string name="bluetooth_req_paring">우선 블루투스 디바이스와 연결해주세요.</string>
+    <string name="DEVICE_MAC_ADDRESS"></string>
+    <string name="UUID">00000003-0000-1000-8000-00805F9B34FB</string>
 </resources>

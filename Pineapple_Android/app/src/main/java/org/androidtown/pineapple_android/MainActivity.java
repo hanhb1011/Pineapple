@@ -20,7 +20,10 @@ public class MainActivity extends AppCompatActivity {
 
     private View micImageView;
     private TextView speechTextView;
-    private final int REQ_CODE_SPEECH_INPUT = 100;
+    private BluetoothHelper bluetoothHelper;
+
+    public static final int REQ_CODE_SPEECH_INPUT = 100;
+    public static final int REQ_CODE_BLUETOOTH_CONN= 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +32,13 @@ public class MainActivity extends AppCompatActivity {
 
         bindView();
         setView();
+        initBlueTooth(); //블루투스 디바이스 페어링
+
+    }
+
+    private void initBlueTooth() {
+        bluetoothHelper = new BluetoothHelper(this);
+        bluetoothHelper.connect();
 
     }
 
