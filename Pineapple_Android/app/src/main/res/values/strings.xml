@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Pineapple_Android</string>
+    <string name="speech_prompt">목적지를 말씀해주세요.</string>
+    <string name="speech_not_supported">음성인식 지원이 되지 않는 기기입니다.\n구글 서비스를 업데이트해주세요.</string>
+    <string name="internet_connection_failed">"인터넷 연결을 확인해주세요."</string>
+    <string name="tap_to_input_string">탭하여 음성 입력</string>
 </resources>
