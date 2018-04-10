@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 StringBuffer sb = new StringBuffer("\"");
                 if(result.size()>0)
                     sb.append(result.get(0)).append("\"");
+                speechTextView.setText(sb.toString());
 
                 break;
 

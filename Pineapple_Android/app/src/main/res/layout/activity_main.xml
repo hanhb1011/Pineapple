@@ -15,7 +15,11 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginBottom="15dp"
+        android:textAlignment="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
@@ -40,7 +44,7 @@
         app:layout_constraintTop_toBottomOf="@id/mic_iv"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:textColor="#525252"
+        android:textColor="#636363"
         android:textStyle="bold"
         android:textSize="25sp"
         android:layout_marginTop="20dp"
