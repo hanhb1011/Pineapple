@@ -8,8 +8,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.speech.RecognizerIntent;
+import android.support.v4.util.Pair;
 import android.widget.Toast;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -23,7 +26,7 @@ import java.util.Locale;
  */
 public class VoiceRecognizer {
 
-    Context context;
+    private Context context;
 
     VoiceRecognizer(Context context) {
         this.context = context;
@@ -62,6 +65,78 @@ public class VoiceRecognizer {
             context.startActivity(browserIntent);
         }
 
+    }
+
+
+
+    /*
+
+        문장을 전달받으면 키워드 매칭을 통해 의도를 파악
+        결과는 Pair<Integer, String>으로 반환한다
+        Pair의 첫 번째 값은 의도를 나타내는 정수값
+        두 번째는 목적지 값이다. (중지하는 경우, 이 부분은 공백이다.)
+
+        상황
+        1. 목적지를 찾는 경우 (ex : "동국대 찾아줘")
+        2. 가까운 목적지 찾는 경우 (ex : "가까운 병원 어디야?")
+        3. 안내 중단 요구 (ex : "안내 그만")
+
+
+    */
+    public android.util.Pair<Integer, String> process(String sentence) {
+        //우선 의도에 따른 키워드를 분류한다
+        List<String> ADJECTIVE_KEYWORDS = Arrays.asList("가까운", "근처");
+        List<String> DESTINATION_KEYWORDS = Arrays.asList("안내해", "어딨", "어디", "어떻게", "알려", "찾아");
+        List<String> CANCELLATION_KEYWORDS = Arrays.asList("중단", "그만", "중지", "취소");
+
+        //문장을 단어별로 분리시킨다 -> String[]
+        String[] words = sentence.split(" ");
+
+        //결과 정의
+        Pair<Integer, String> result = new Pair<>(-1, "");
+
+        //목적지 탐색인 경우
+        for(String keyword : DESTINATION_KEYWORDS) {
+            for (int i=0; i<words.length; i++) {
+                if (words[i].contains(keyword)) {
+                    //목적지 탐색 키워드와 일치하는 경우, 자연어에서 목적지 정보를 필터링해서 리턴한다.
+                    StringBuilder destination = new StringBuilder();
+
+                    for(int j=0; j<i; j++) {
+
+                        //형용사인 경우 ("가까운", "근처" 등)를 필터링
+                        boolean isAdjective = false;
+                        for(String adjective : ADJECTIVE_KEYWORDS) {
+                            if(words[j].contains(adjective)) {
+                                isAdjective = true;
+                                break;
+                            }
+                        }
+
+                        if(!isAdjective) {
+                            destination.append(words[j]);
+                        }
+                    }
+
+                    return new android.util.Pair<>(MainActivity.INTENTION_DESTINATION, destination.toString());
+                }
+            }
+        }
+
+        //탐색 중단인 경우
+        for(String keyword : CANCELLATION_KEYWORDS) {
+            for(String word : words) {
+                if(word.contains(keyword)) {
+                    //중단이라 판단
+                    return new android.util.Pair<>(MainActivity.INTENTION_CANCELLATION,  null);
+                }
+            }
+        }
+
+
+
+        //아무것도 아닌 경우 (Invalid 할 경우)
+        return new android.util.Pair<>(MainActivity.INTENTION_INVALID, null);
     }
 
 }

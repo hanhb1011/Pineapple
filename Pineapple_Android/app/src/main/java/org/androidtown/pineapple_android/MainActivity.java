@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,39 +15,57 @@ public class MainActivity extends AppCompatActivity {
 
     private View micImageView;
     private TextView speechTextView;
+    private TextView responseTextView;
+    public TextView testTextView;
     private BluetoothHelper bluetoothHelper;
     private VoiceRecognizer voiceRecognizer;
+    private Tmap tmap;
+    public MainHandler mainHandler;
 
     public static final int REQ_CODE_SPEECH_INPUT = 100;
     public static final int REQ_CODE_BLUETOOTH_CONN= 101;
+
+    public static final int MSG_TOAST = 10;
+    public static final int MSG_TEST = 11;
+
+    public static final int INTENTION_DESTINATION = 1001;
+    public static final int INTENTION_CANCELLATION = 1002;
+    public static final int INTENTION_INVALID = 1003;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        initBlueTooth(); //블루투스 디바이스 페어링
-        initVoiceRecoder(); //음성인식 기능 초기화
+        init();
         bindView();
         setView();
 
     }
 
-    private void initVoiceRecoder() {
-        voiceRecognizer = new VoiceRecognizer(this);
+    private void init() {
+        //핸들러 초기화
+        mainHandler = new MainHandler(this);
 
-    }
-
-    private void initBlueTooth() {
+        //블루투스 디바이스 페어링
         bluetoothHelper = new BluetoothHelper(this);
         bluetoothHelper.connect();
 
+        //음성인식 기능 초기화
+        voiceRecognizer = new VoiceRecognizer(this);
+
+        //Tmap 초기화
+        tmap = new Tmap(this);
+
     }
+
 
     //뷰 바인딩
     private void bindView() {
         micImageView = findViewById(R.id.mic_iv);
-        speechTextView = findViewById(R.id.sppech_tv);
+        speechTextView = findViewById(R.id.speech_tv);
+        responseTextView = findViewById(R.id.response_tv);
+        testTextView = findViewById(R.id.test_tv);
 
     }
 
@@ -75,21 +94,53 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
+            //음성인식이 완료되었을 때
             case REQ_CODE_SPEECH_INPUT :
-                //is valid?
+                //check validity
                 if(resultCode!=RESULT_OK || data == null)
                     return;
 
                 ArrayList<String> result = data
                         .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 
-                //스트링버퍼로 성능향상 유도
-                StringBuffer sb = new StringBuffer("\"");
+                //입력, 응답 스트링 정의, update UI : 스트링빌더로 성능향상 유도
+                StringBuilder speech = new StringBuilder("\"");
                 if(result.size()>0)
-                    sb.append(result.get(0)).append("\"");
-                speechTextView.setText(sb.toString());
+                    speech.append(result.get(0)).append("\"");
+                speechTextView.setText(speech.toString());
 
-                break;
+                StringBuilder response = new StringBuilder("\"");
+
+                //문장을 처리해서 의도와 목적지를 파악한다.
+                Pair<Integer, String> resultPair = voiceRecognizer.process(result.get(0));
+
+                switch (resultPair.first) {
+                    case INTENTION_DESTINATION :
+
+                        response.append(resultPair.second);
+                        response.append(" 안내를 시작합니다.\"");
+                        tmap.getPOIItem(resultPair.second);
+
+                        //TODO 안내
+
+                        break;
+                    case INTENTION_CANCELLATION :
+                        response.append("안내를 중단합니다.\"");
+
+                        //TODO 안내 중단
+
+                        break;
+                    case INTENTION_INVALID :
+                        response.append("다시 한 번 말씀해주세요.\"");
+
+
+                        break;
+                }
+
+
+                //응답 출력
+                responseTextView.setText(response.toString());
+
 
         }
 
