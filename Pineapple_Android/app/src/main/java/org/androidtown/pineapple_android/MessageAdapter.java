@@ -5,9 +5,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Created by hanhb on 2018-04-12.
@@ -86,35 +88,57 @@ public class MessageAdapter extends RecyclerView.Adapter {
     }
 
 
+    //long 형의 타임스탬프를 HH:MM 형식의 스트링으로 변환한다
+    public String getTimeString(long timestamp) {
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(timestamp);
+        return fmt.format(cal.getTime());
+
+    }
+
+
+    /*
+        View Holders
+        MyMessageHolder : 내가 보낸 음성메시지
+        BotMessageHolder : 봇
+     */
+
     private class MyMessageHolder extends RecyclerView.ViewHolder {
+
+        private TextView contentTextView;
+        private TextView timeTextView;
 
         public MyMessageHolder(View itemView) {
             super(itemView);
-
-
+            contentTextView = itemView.findViewById(R.id.content_my_tv);
+            timeTextView = itemView.findViewById(R.id.time_my_tv);
         }
 
         public void bind(Message message) {
-
-
-
-
+            contentTextView.setText(message.getMessageContent());
+            String time = getTimeString(message.getTimeStamp());
+            timeTextView.setText(time);
 
         }
     }
 
     private class BotMessageHolder extends RecyclerView.ViewHolder {
 
+        private TextView contentTextView;
+        private TextView timeTextView;
+
         public BotMessageHolder(View itemView) {
             super(itemView);
-
+            contentTextView = itemView.findViewById(R.id.content_bot_tv);
+            timeTextView = itemView.findViewById(R.id.time_bot_tv);
 
         }
 
         public void bind(Message message) {
-
-
-
+            contentTextView.setText(message.getMessageContent());
+            String time = getTimeString(message.getTimeStamp());
+            timeTextView.setText(time);
 
         }
     }
