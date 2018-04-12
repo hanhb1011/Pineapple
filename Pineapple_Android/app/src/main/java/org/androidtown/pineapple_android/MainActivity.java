@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import static org.androidtown.pineapple_android.GroupConstants.REQ_CODE_SPEECH_INPUT;
+
 public class MainActivity extends AppCompatActivity {
 
     private View micImageView;
@@ -22,15 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private Tmap tmap;
     public MainHandler mainHandler;
 
-    public static final int REQ_CODE_SPEECH_INPUT = 100;
-    public static final int REQ_CODE_BLUETOOTH_CONN= 101;
 
-    public static final int MSG_TOAST = 10;
-    public static final int MSG_TEST = 11;
-
-    public static final int INTENTION_DESTINATION = 1001;
-    public static final int INTENTION_CANCELLATION = 1002;
-    public static final int INTENTION_INVALID = 1003;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 Pair<Integer, String> resultPair = voiceRecognizer.process(result.get(0));
 
                 switch (resultPair.first) {
-                    case INTENTION_DESTINATION :
+                    case GroupConstants.INTENTION_DESTINATION :
 
                         response.append(resultPair.second);
                         response.append(" 안내를 시작합니다.\"");
@@ -124,13 +118,13 @@ public class MainActivity extends AppCompatActivity {
                         //TODO 안내
 
                         break;
-                    case INTENTION_CANCELLATION :
+                    case GroupConstants.INTENTION_CANCELLATION :
                         response.append("안내를 중단합니다.\"");
 
                         //TODO 안내 중단
 
                         break;
-                    case INTENTION_INVALID :
+                    case GroupConstants.INTENTION_INVALID :
                         response.append("다시 한 번 말씀해주세요.\"");
 
 

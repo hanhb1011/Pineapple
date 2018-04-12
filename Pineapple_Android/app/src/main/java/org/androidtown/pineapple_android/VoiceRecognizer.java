@@ -8,7 +8,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.speech.RecognizerIntent;
-import android.support.v4.util.Pair;
 import android.widget.Toast;
 
 import java.util.Arrays;
@@ -28,7 +27,7 @@ public class VoiceRecognizer {
 
     private Context context;
 
-    VoiceRecognizer(Context context) {
+    public VoiceRecognizer(Context context) {
         this.context = context;
 
     }
@@ -54,12 +53,12 @@ public class VoiceRecognizer {
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, context.getString(R.string.speech_prompt));
 
         try {
-            ((Activity)context).startActivityForResult(intent, MainActivity.REQ_CODE_SPEECH_INPUT);
+            ((Activity)context).startActivityForResult(intent, GroupConstants.REQ_CODE_SPEECH_INPUT);
 
         } catch (ActivityNotFoundException a) {
 
             //음성인식 지원을 하지 않는 경우, 구글 서비스 업데이트를 유도한다
-            String appPackageName = "com.google.android.googlequicksearchbox";
+            String appPackageName = context.getResources().getString(R.string.url_google_services);
             Toast.makeText(context, context.getString(R.string.speech_not_supported), Toast.LENGTH_SHORT).show();
             Intent browserIntent = new Intent(Intent.ACTION_VIEW,   Uri.parse("https://market.android.com/details?id="+appPackageName));
             context.startActivity(browserIntent);
@@ -92,9 +91,6 @@ public class VoiceRecognizer {
         //문장을 단어별로 분리시킨다 -> String[]
         String[] words = sentence.split(" ");
 
-        //결과 정의
-        Pair<Integer, String> result = new Pair<>(-1, "");
-
         //목적지 탐색인 경우
         for(String keyword : DESTINATION_KEYWORDS) {
             for (int i=0; i<words.length; i++) {
@@ -113,12 +109,15 @@ public class VoiceRecognizer {
                             }
                         }
 
+                        //형용사가 아닌 경우 StringBuilder에 append
                         if(!isAdjective) {
                             destination.append(words[j]);
                         }
                     }
 
-                    return new android.util.Pair<>(MainActivity.INTENTION_DESTINATION, destination.toString());
+                    //목적지 정보가 유효한 경우(length > 0), 결과 리턴
+                    if(destination.length()>0)
+                        return new android.util.Pair<>(GroupConstants.INTENTION_DESTINATION, destination.toString());
                 }
             }
         }
@@ -128,7 +127,7 @@ public class VoiceRecognizer {
             for(String word : words) {
                 if(word.contains(keyword)) {
                     //중단이라 판단
-                    return new android.util.Pair<>(MainActivity.INTENTION_CANCELLATION,  null);
+                    return new android.util.Pair<>(GroupConstants.INTENTION_CANCELLATION,  null);
                 }
             }
         }
@@ -136,7 +135,7 @@ public class VoiceRecognizer {
 
 
         //아무것도 아닌 경우 (Invalid 할 경우)
-        return new android.util.Pair<>(MainActivity.INTENTION_INVALID, null);
+        return new android.util.Pair<>(GroupConstants.INTENTION_INVALID, null);
     }
 
 }

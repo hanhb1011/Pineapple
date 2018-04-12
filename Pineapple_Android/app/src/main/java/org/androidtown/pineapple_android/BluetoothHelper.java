@@ -49,7 +49,7 @@ public class BluetoothHelper {
         if(!bluetoothAdapter.isEnabled()) {
             Intent enableAdapter = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             Toast.makeText(context, R.string.bluetooth_disabled, Toast.LENGTH_SHORT).show();
-            ((Activity)context).startActivityForResult(enableAdapter, MainActivity.REQ_CODE_BLUETOOTH_CONN);
+            ((Activity)context).startActivityForResult(enableAdapter, GroupConstants.REQ_CODE_BLUETOOTH_CONN);
         }
 
         Set<BluetoothDevice> bondedDevices = bluetoothAdapter.getBondedDevices();

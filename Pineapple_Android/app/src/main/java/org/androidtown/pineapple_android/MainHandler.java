@@ -25,11 +25,11 @@ public class MainHandler extends Handler {
 
         switch(msg.what) {
 
-            case MainActivity.MSG_TOAST :
+            case GroupConstants.MSG_TOAST :
                 Toast.makeText(context, (String)msg.obj, Toast.LENGTH_SHORT).show();
                 break;
 
-            case MainActivity.MSG_TEST :
+            case GroupConstants.MSG_TEST :
                 StringBuilder str = new StringBuilder();
                 TMapPOIItem item = (TMapPOIItem) msg.obj;
 
