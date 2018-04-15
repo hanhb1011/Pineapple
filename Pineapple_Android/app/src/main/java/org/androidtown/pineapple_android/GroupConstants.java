@@ -6,9 +6,12 @@ package org.androidtown.pineapple_android;
 
 public class GroupConstants {
 
-    //Message to Handler
+    //Messages to Handler
     public static final int MSG_TOAST = 10;
     public static final int MSG_TEST = 11;
+    public static final int MSG_BLUETOOTH_CONNECTED = 12;
+    public static final int MSG_BLUETOOTH_DISCONNECTED = 13;
+
 
     //Activity Request Codes
     public static final int REQ_CODE_SPEECH_INPUT = 100;

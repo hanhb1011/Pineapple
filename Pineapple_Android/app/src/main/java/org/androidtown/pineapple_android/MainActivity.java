@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     public TextView testTextView;
     private BluetoothHelper bluetoothHelper;
     private VoiceRecognizer voiceRecognizer;
-    private Tmap tmap;
+    public Tmap tmap;
     public MainHandler mainHandler;
 
 
