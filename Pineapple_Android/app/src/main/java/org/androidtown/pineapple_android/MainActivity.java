@@ -6,10 +6,13 @@ import android.speech.RecognizerIntent;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import static org.androidtown.pineapple_android.GroupConstants.REQ_CODE_SPEECH_INPUT;
 
@@ -24,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     public Tmap tmap;
     public MainHandler mainHandler;
 
-
+    public static ArrayList<Message> messageList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +37,47 @@ public class MainActivity extends AppCompatActivity {
         init();
         bindView();
         setView();
+        testInit();//테스트
+
+    }
+
+    private void testInit() {
+        //아두이노에 데이터 전송
+        final EditText testEditText = findViewById(R.id.test_et);
+        Button testButton = findViewById(R.id.test_btn);
+
+        testButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(testEditText.getText().toString().length()>0){
+
+                    try {
+                        bluetoothHelper.sendData(Integer.valueOf(testEditText.getText().toString().trim()));
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "TYPE ERROR", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+            }
+        });
+
+        //액티비티 전환
+        addMessageToList(GroupConstants.BOT_MESSAGE, "ㅁㅈ럊머ㅑㄹㅈㅁㄹ");
+        addMessageToList(GroupConstants.MY_MESSAGE, "ㅁasㅁㄴㅇㅎㅁㅇㄶ");
+        addMessageToList(GroupConstants.BOT_MESSAGE, "ㅁㅈ럊머ㅑㄹㅈㅁㄹ");
+        addMessageToList(GroupConstants.MY_MESSAGE, "ㅇㅎㄷㅎ21ㄷㅇ");
+        addMessageToList(GroupConstants.BOT_MESSAGE, "ㅁㅈ럊머ㅑㄹㅈㅁㄹ");
+        addMessageToList(GroupConstants.MY_MESSAGE, "ㅁasㅁㄴㅇㅎㅁㅇㄶ");
+        addMessageToList(GroupConstants.BOT_MESSAGE, "ㅁㅈ럊머ㅑㄹㅈㅁㄹ");
+        addMessageToList(GroupConstants.MY_MESSAGE, "ㅇㅎㄷㅎ21ㄷㅇ");
+
+        findViewById(R.id.activity_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, ChatLogActivity.class);
+                startActivity(intent);
+            }
+        });
 
     }
 
@@ -51,6 +95,8 @@ public class MainActivity extends AppCompatActivity {
         //Tmap 초기화
         tmap = new Tmap(this);
 
+        //message List 초기화
+        messageList = new ArrayList<>();
     }
 
 
@@ -60,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
         speechTextView = findViewById(R.id.speech_tv);
         responseTextView = findViewById(R.id.response_tv);
         testTextView = findViewById(R.id.test_tv);
+
 
     }
 
@@ -103,6 +150,9 @@ public class MainActivity extends AppCompatActivity {
                     speech.append(result.get(0)).append("\"");
                 speechTextView.setText(speech.toString());
 
+                //메시지 리스트에 메시지 추가 (채팅 로그)
+                addMessageToList(GroupConstants.MY_MESSAGE, speech.toString());
+
                 StringBuilder response = new StringBuilder("\"");
 
                 //문장을 처리해서 의도와 목적지를 파악한다.
@@ -135,8 +185,21 @@ public class MainActivity extends AppCompatActivity {
                 //응답 출력
                 responseTextView.setText(response.toString());
 
+                //메시지 리스트에 응답메시지 추가
+                addMessageToList(GroupConstants.BOT_MESSAGE, response.toString());
+
 
         }
+
+    }
+
+    //채팅 로그에 띄울 ArrayList<Message>에 Message를 add한다.
+    public void addMessageToList(int messageType, String content){
+
+        Calendar calendar = Calendar.getInstance();
+        long currentTimeStamp = calendar.getTimeInMillis();
+        Message message = new Message(messageType, content, currentTimeStamp);
+        messageList.add(message);
 
     }
 }

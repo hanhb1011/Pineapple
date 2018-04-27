@@ -1,5 +1,6 @@
 package org.androidtown.pineapple_android;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,16 +21,11 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
 
     private Context context;
-    private ArrayList<Message> messageList;
+    private ArrayList<Message> messageList = MainActivity.messageList;
     private SimpleDateFormat fmt = new SimpleDateFormat("HH:mm");
 
     MessageAdapter(Context context) {
         this.context = context;
-    }
-
-    MessageAdapter(Context context, ArrayList<Message> messageList) {
-        this.context = context;
-        this.messageList = messageList;
     }
 
     @Override
@@ -46,10 +42,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
             case GroupConstants.MY_MESSAGE:
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_my_message, parent, false);
+                view.setOnClickListener(new OnTouchToFinishListener());
                 return new MyMessageHolder(view);
 
             case GroupConstants.BOT_MESSAGE:
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_bot_message, parent, false);
+                view.setOnClickListener(new OnTouchToFinishListener());
                 return new BotMessageHolder(view);
 
         }
@@ -89,7 +87,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
 
     //long 형의 타임스탬프를 HH:MM 형식의 스트링으로 변환한다
-    public String getTimeString(long timestamp) {
+    private String getTimeString(long timestamp) {
 
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(timestamp);
@@ -103,7 +101,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
         MyMessageHolder : 내가 보낸 음성메시지
         BotMessageHolder : 봇
      */
-
     private class MyMessageHolder extends RecyclerView.ViewHolder {
 
         private TextView contentTextView;
@@ -140,6 +137,15 @@ public class MessageAdapter extends RecyclerView.Adapter {
             String time = getTimeString(message.getTimeStamp());
             timeTextView.setText(time);
 
+        }
+    }
+
+    //터치 시 액티비티 finish
+    private class OnTouchToFinishListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            if(context instanceof ChatLogActivity)
+                ((Activity)context).finish();
         }
     }
 }

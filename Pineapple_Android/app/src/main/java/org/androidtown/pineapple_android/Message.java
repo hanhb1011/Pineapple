@@ -6,21 +6,22 @@ package org.androidtown.pineapple_android;
 
 public class Message {
 
-    private int MessageType;
+    private int messageType;
     private String messageContent;
     private long timeStamp;
 
-    public Message(int messageType, String messageContent) {
-        MessageType = messageType;
+    public Message(int messageType, String messageContent, long timeStamp) {
+        this.messageType = messageType;
         this.messageContent = messageContent;
+        this.timeStamp = timeStamp;
     }
 
     public int getMessageType() {
-        return MessageType;
+        return messageType;
     }
 
     public void setMessageType(int messageType) {
-        MessageType = messageType;
+        messageType = messageType;
     }
 
     public String getMessageContent() {

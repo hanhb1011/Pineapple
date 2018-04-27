@@ -11,4 +11,5 @@
     <string name="bluetooth_req_paring">우선 블루투스 디바이스와 연결해주세요.</string>
     <string name="url_google_services">com.google.android.googlequicksearchbox</string>
     <string name="DEVICE_MAC_ADDRESS"></string>
+    <string name="DEVICE_NAME">BEOM</string>
 </resources>

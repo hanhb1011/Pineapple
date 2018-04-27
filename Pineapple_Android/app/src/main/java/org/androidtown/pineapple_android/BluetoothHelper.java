@@ -61,7 +61,7 @@ public class BluetoothHelper {
         } else {
             for (BluetoothDevice device : bondedDevices) {
 
-                if(device.getAddress().equals(R.string.DEVICE_MAC_ADDRESS)){
+                if(device.getName().equals(context.getResources().getString(R.string.DEVICE_NAME))){
 
                     bluetoothDevice=device; //device is an object of type BluetoothDevice
                     found = true;
@@ -79,14 +79,14 @@ public class BluetoothHelper {
 
         //마지막으로 블루투스 소켓 통신 활성화
         //TODO uuid 확인
-        UUID PORT_UUID = UUID.fromString("00000003-0000-1000-8000-00805F9B34FB");
+        UUID PORT_UUID = UUID.fromString(context.getResources().getString(R.string.UUID));
         try {
 
             bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(PORT_UUID);
             bluetoothSocket.connect();
 
         } catch (IOException e){
-            e.printStackTrace();
+            Toast.makeText(context, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         }
 
 
@@ -108,4 +108,19 @@ public class BluetoothHelper {
 
     }
 
+    //byte[] 형태로 데이터 전송
+    public void sendData(byte[] inputData){
+        if(bluetoothSocket == null || !bluetoothSocket.isConnected()) {
+            Toast.makeText(context, R.string.bluetooth_not_found, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        //outputStream을 통해 데이터 전송
+        try {
+            bluetoothSocket.getOutputStream().write(inputData);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
+    }
 }
