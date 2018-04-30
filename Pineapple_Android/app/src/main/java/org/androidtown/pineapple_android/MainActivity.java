@@ -1,8 +1,10 @@
 package org.androidtown.pineapple_android;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 import static org.androidtown.pineapple_android.GroupConstants.REQ_CODE_SPEECH_INPUT;
 
@@ -26,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private VoiceRecognizer voiceRecognizer;
     public Tmap tmap;
     public MainHandler mainHandler;
-
+    public TextToSpeech tts;
     public static ArrayList<Message> messageList;
 
     @Override
@@ -61,16 +64,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //액티비티 전환
-        addMessageToList(GroupConstants.BOT_MESSAGE, "ㅁㅈ럊머ㅑㄹㅈㅁㄹ");
-        addMessageToList(GroupConstants.MY_MESSAGE, "ㅁasㅁㄴㅇㅎㅁㅇㄶ");
-        addMessageToList(GroupConstants.BOT_MESSAGE, "ㅁㅈ럊머ㅑㄹㅈㅁㄹ");
-        addMessageToList(GroupConstants.MY_MESSAGE, "ㅇㅎㄷㅎ21ㄷㅇ");
-        addMessageToList(GroupConstants.BOT_MESSAGE, "ㅁㅈ럊머ㅑㄹㅈㅁㄹ");
-        addMessageToList(GroupConstants.MY_MESSAGE, "ㅁasㅁㄴㅇㅎㅁㅇㄶ");
-        addMessageToList(GroupConstants.BOT_MESSAGE, "ㅁㅈ럊머ㅑㄹㅈㅁㄹ");
-        addMessageToList(GroupConstants.MY_MESSAGE, "ㅇㅎㄷㅎ21ㄷㅇ");
-
         findViewById(R.id.activity_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -97,6 +90,9 @@ public class MainActivity extends AppCompatActivity {
 
         //message List 초기화
         messageList = new ArrayList<>();
+
+        //TextToSpeech 초기화
+        tts = getTTSInstance();
     }
 
 
@@ -106,8 +102,6 @@ public class MainActivity extends AppCompatActivity {
         speechTextView = findViewById(R.id.speech_tv);
         responseTextView = findViewById(R.id.response_tv);
         testTextView = findViewById(R.id.test_tv);
-
-
     }
 
     //뷰 초기화
@@ -127,6 +121,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        //tts 중지 (Clear the buffer)
+        if(tts != null){
+            tts.stop();
+            tts.shutdown();
+            tts = null;
+        }
 
     }
 
@@ -176,8 +183,6 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case GroupConstants.INTENTION_INVALID :
                         response.append("다시 한 번 말씀해주세요.\"");
-
-
                         break;
                 }
 
@@ -188,6 +193,8 @@ public class MainActivity extends AppCompatActivity {
                 //메시지 리스트에 응답메시지 추가
                 addMessageToList(GroupConstants.BOT_MESSAGE, response.toString());
 
+                //음성 출력
+                speak(response.substring(1, response.length() - 1));
 
         }
 
@@ -201,5 +208,42 @@ public class MainActivity extends AppCompatActivity {
         Message message = new Message(messageType, content, currentTimeStamp);
         messageList.add(message);
 
+    }
+
+    //음성 출력
+    public void speak(String text){
+        if(tts==null)
+            return;
+
+        //음성 출력 (Minimum SDK version is 21)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            String utteranceId = String.valueOf(this.hashCode());
+            try {
+                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    //TextToSpeech Instance를 생성해서 리턴
+    private TextToSpeech getTTSInstance(){
+        return new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status!=TextToSpeech.ERROR){
+                    tts.setLanguage(Locale.KOREAN);
+                    //minimum SDK version is 21
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        String utteranceId=this.hashCode() + "";
+                        tts.speak("안녕하세요. 목적지를 말씀해주세요.", TextToSpeech.QUEUE_FLUSH, null, utteranceId);
+                    }
+
+                } else {
+                    Toast.makeText(MainActivity.this, "TTS Init Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }
