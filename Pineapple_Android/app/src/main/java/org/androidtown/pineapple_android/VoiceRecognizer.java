@@ -87,6 +87,8 @@ public class VoiceRecognizer {
         List<String> ADJECTIVE_KEYWORDS = Arrays.asList("가까운", "근처");
         List<String> DESTINATION_KEYWORDS = Arrays.asList("안내해", "어딨", "어디", "어떻게", "알려", "찾아");
         List<String> CANCELLATION_KEYWORDS = Arrays.asList("중단", "그만", "중지", "취소");
+        List<String> CHATLOG_KEYWORDS = Arrays.asList("기록","채팅","로그");
+        List<String> MAP_KEYWORDS = Arrays.asList("맵", "지도");
 
         //문장을 단어별로 분리시킨다 -> String[]
         String[] words = sentence.split(" ");
@@ -132,7 +134,25 @@ public class VoiceRecognizer {
             }
         }
 
+        //채팅 로그 보이기
+        for(String keyword : CHATLOG_KEYWORDS) {
+            for(String word : words) {
+                if(word.contains(keyword)) {
+                    //중단이라 판단
+                    return new android.util.Pair<>(GroupConstants.INTENTION_CHATLOG,  null);
+                }
+            }
+        }
 
+        //지도 보여주기
+        for(String keyword : MAP_KEYWORDS) {
+            for(String word : words) {
+                if(word.contains(keyword)) {
+                    //중단이라 판단
+                    return new android.util.Pair<>(GroupConstants.INTENTION_MAP,  null);
+                }
+            }
+        }
 
         //아무것도 아닌 경우 (Invalid 할 경우)
         return new android.util.Pair<>(GroupConstants.INTENTION_INVALID, null);

@@ -44,6 +44,10 @@ public class MainHandler extends Handler {
                 ((MainActivity)context).testTextView.setText(str);
                 break;
 
+            case GroupConstants.MSG_TEST_BT :
+                String s = (String) msg.obj;
+                ((MainActivity)context).testTextView.append(s+"\n");
+                break;
             case GroupConstants.MSG_BLUETOOTH_CONNECTED :
                 //TODO 이미지뷰 전환
                 break;

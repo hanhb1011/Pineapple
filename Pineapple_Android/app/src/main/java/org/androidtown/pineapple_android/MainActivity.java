@@ -181,8 +181,17 @@ public class MainActivity extends AppCompatActivity {
                         //TODO 안내 중단
 
                         break;
+
                     case GroupConstants.INTENTION_INVALID :
                         response.append("다시 한 번 말씀해주세요.\"");
+                        break;
+
+                    case GroupConstants.INTENTION_CHATLOG :
+
+                        break;
+
+                    case GroupConstants.INTENTION_MAP :
+
                         break;
                 }
 

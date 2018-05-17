@@ -23,6 +23,7 @@ public class BluetoothHelper {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice bluetoothDevice;
     private BluetoothSocket bluetoothSocket;
+    private BluetoothThread bluetoothThread;
 
     //생성자에서 context를 받는다
     BluetoothHelper(Context context){
@@ -78,12 +79,17 @@ public class BluetoothHelper {
         }
 
         //마지막으로 블루투스 소켓 통신 활성화
-        //TODO uuid 확인
         UUID PORT_UUID = UUID.fromString(context.getResources().getString(R.string.UUID));
         try {
 
             bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(PORT_UUID);
             bluetoothSocket.connect();
+
+            //블루투스 소켓이 연결상태면 블루투스쓰레드 실행
+            if(bluetoothSocket.isConnected()) {
+                bluetoothThread = new BluetoothThread(context, bluetoothSocket);
+                bluetoothThread.start();
+            }
 
         } catch (IOException e){
             Toast.makeText(context, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();

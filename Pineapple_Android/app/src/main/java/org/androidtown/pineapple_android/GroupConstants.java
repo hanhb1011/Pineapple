@@ -11,6 +11,7 @@ public class GroupConstants {
     public static final int MSG_TEST = 11;
     public static final int MSG_BLUETOOTH_CONNECTED = 12;
     public static final int MSG_BLUETOOTH_DISCONNECTED = 13;
+    public static final int MSG_TEST_BT = 14;
 
 
     //Activity Request Codes
@@ -21,6 +22,8 @@ public class GroupConstants {
     public static final int INTENTION_DESTINATION = 1001;
     public static final int INTENTION_CANCELLATION = 1002;
     public static final int INTENTION_INVALID = 1003;
+    public static final int INTENTION_CHATLOG = 1004;
+    public static final int INTENTION_MAP = 1005;
 
     //Message Type
     public static final int MY_MESSAGE = 1000;
