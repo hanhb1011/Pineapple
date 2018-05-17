@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+@Deprecated
 public class ChatLogActivity extends Activity {
 
     private RecyclerView chatRecyclerView;
@@ -26,7 +27,7 @@ public class ChatLogActivity extends Activity {
         //set adapter
         chatRecyclerView = findViewById(R.id.chat_recycler_view);
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        chatRecyclerView.setAdapter(new MessageAdapter(this));
+        chatRecyclerView.setAdapter(new MessageAdapter(this, null));
 
         constraintLayout = findViewById(R.id.chat_constraintlayout);
         constraintLayout.setOnClickListener(new View.OnClickListener() {

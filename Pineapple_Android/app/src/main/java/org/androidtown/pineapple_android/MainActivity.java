@@ -67,8 +67,8 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.activity_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ChatLogActivity.class);
-                startActivity(intent);
+                ChatLogFragment chatLogFragment = new ChatLogFragment();
+                chatLogFragment.show(getFragmentManager(),"");
             }
         });
 
@@ -187,11 +187,11 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                     case GroupConstants.INTENTION_CHATLOG :
-
+                        response.append("채팅 기록.\"");
                         break;
 
                     case GroupConstants.INTENTION_MAP :
-
+                        response.append("지도.\"");
                         break;
                 }
 

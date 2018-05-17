@@ -1,6 +1,6 @@
 package org.androidtown.pineapple_android;
 
-import android.app.Activity;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -21,11 +21,13 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
 
     private Context context;
+    private DialogFragment dialogFragment;
     private ArrayList<Message> messageList = MainActivity.messageList;
     private SimpleDateFormat fmt = new SimpleDateFormat("HH:mm");
 
-    MessageAdapter(Context context) {
+    MessageAdapter(Context context, DialogFragment dialogFragment) {
         this.context = context;
+        this.dialogFragment = dialogFragment;
     }
 
     @Override
@@ -140,12 +142,11 @@ public class MessageAdapter extends RecyclerView.Adapter {
         }
     }
 
-    //터치 시 액티비티 finish
+    //터치 시 dismiss the dialog.
     private class OnTouchToFinishListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            if(context instanceof ChatLogActivity)
-                ((Activity)context).finish();
+            dialogFragment.dismiss();
         }
     }
 }
