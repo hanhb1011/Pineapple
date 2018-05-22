@@ -1,11 +1,15 @@
 package org.androidtown.pineapple_android;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
@@ -13,13 +17,25 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.androidtown.pineapple_android.Interface.LocationInterface;
+import org.androidtown.pineapple_android.Model.FindTheWay;
+import org.androidtown.pineapple_android.Retrofit.RetrofitService;
+import org.androidtown.pineapple_android.Util.ApiUtils;
+import org.androidtown.pineapple_android.Util.GpsInfoService;
+import org.androidtown.pineapple_android.Util.Navigation;
+import org.androidtown.pineapple_android.Util.NavigationBody;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import static org.androidtown.pineapple_android.GroupConstants.REQ_CODE_SPEECH_INPUT;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LocationInterface{
 
     private View micImageView;
     private TextView speechTextView;
@@ -32,10 +48,24 @@ public class MainActivity extends AppCompatActivity {
     public TextToSpeech tts;
     public static ArrayList<Message> messageList;
 
+
+    private RetrofitService mService;
+    FindTheWay mWay;
+    Navigation navi;
+    GpsInfoService gps;
+
+
+
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
 
         init();
         bindView();
@@ -93,6 +123,19 @@ public class MainActivity extends AppCompatActivity {
 
         //TextToSpeech 초기화
         tts = getTTSInstance();
+
+        //Navigation 초기화
+        navi = new Navigation(this);
+
+        //RetrofitService 초기화
+        mService = ApiUtils.getRetrofitService();
+
+        //gps 퍼미션 및 GpsInfoService 객체 초기화
+        if(!checkLocationPermission()) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }else{
+            gps = new GpsInfoService(this);
+        }
     }
 
 
@@ -254,5 +297,106 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+
+    public void loadAnswer() {
+        if(gps!=null) {
+            double startX = 126.9823439963945;
+            double startY = 37.56461982743129;
+            double endX = 127.000732;
+            double endY = 37.557758;
+
+
+            NavigationBody navigationBody = new NavigationBody();
+            if (gps.isGetLocation()) {
+                startX = gps.getLongitude();
+                startY = gps.getLatitude();
+            }
+
+            navigationBody.setStartPoint(startX, startY); //출발지 설정
+            navigationBody.setEndPoint(endX, endY); //목적지 설정
+
+            navi.gettMapView().setCenterPoint(startX, startY); //중심지 설정
+            navi.setStartEndXY(startX, startY, endX, endY); //출발지, 목적지 알리기
+
+            mService.getFindTheWay(navigationBody.getRequestBody()).enqueue(new Callback<FindTheWay>() {
+                @Override
+                public void onResponse(Call<FindTheWay> call, Response<FindTheWay> response) {
+                    if (response.isSuccessful()) {
+                        Log.d("MainActivity", "posts loaded from API");
+                        mWay = response.body();
+                        if (mWay == null)
+                            Log.d("mWay", "null");
+                        else {
+                            navi.startNavigation(mWay);
+
+                            navi.drawWayInMap();
+                            if (navi.getCurrentState() == 1) {
+                                //navi.getDescription() , 음성안내
+                                // tv.append(navi.getDescription()+"\n");
+                                navi.nextFeature();
+                            } else {
+
+                            }
+                        }
+                    } else {
+                        int statusCode = response.code();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<FindTheWay> call, Throwable t) {
+                    Log.d("MainActivity", "error loading from API\n" + call.request() + "\n" + t.getMessage());
+
+                }
+            });
+        }else{
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }
+    }
+
+
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    gps = new GpsInfoService(this);
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
+    public boolean checkLocationPermission()
+    {
+        String permission = "android.permission.ACCESS_FINE_LOCATION";
+        int res = this.checkCallingOrSelfPermission(permission);
+        return (res == PackageManager.PERMISSION_GRANTED);
+    }
+
+    @Override
+    public void locationChangedCallBack(double lon, double lat) {
+        if(navi.isStarted()){
+            navi.stateCheck(lat,lon);
+            switch(navi.getCurrentState()){
+                case 2: //type : LineString
+                    //그림 그리기
+
+                    break;
+                case 1: //type : Point
+                    //음성안내
+                    //dpl.getDescription();
+                    //tv.append(navi.getDescription()+"\n");
+                    navi.nextFeature();
+            }
+        }
     }
 }
