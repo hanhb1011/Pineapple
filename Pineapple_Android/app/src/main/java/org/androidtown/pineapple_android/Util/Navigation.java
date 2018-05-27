@@ -223,7 +223,9 @@ public class Navigation {
     }
 
     public void setCurrentMarker(double currentX, double currentY){
-        tMapView.removeMarkerItem("현재위치");
+        try {
+            tMapView.removeMarkerItem("현재위치");
+        }catch(Exception e){}
         TMapMarkerItem currentItem = new TMapMarkerItem();
         currentItem.setName("현재위치");
         currentItem.setTMapPoint(new TMapPoint(currentX, currentY));

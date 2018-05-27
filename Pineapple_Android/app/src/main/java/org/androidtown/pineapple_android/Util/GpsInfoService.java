@@ -128,6 +128,10 @@ public class GpsInfoService extends Service implements LocationListener {
         }
     }
 
+    public void setCallback(LocationInterface callback){
+        this.callback = callback;
+    }
+
     /**
      * 위도값을 가져옵니다.
      * */

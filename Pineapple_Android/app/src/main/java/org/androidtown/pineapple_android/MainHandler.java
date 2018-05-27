@@ -37,11 +37,11 @@ public class MainHandler extends Handler {
                         .append("주소 : ").append(item.getPOIAddress()).append("\n")
                         .append("위도 : ").append(item.getPOIPoint().getLatitude()).append("\n")
                         .append("경도 : ").append(item.getPOIPoint().getLongitude()).append("\n")
-                        .append("거리 : ").append(item.getDistance(((MainActivity)context).tmap.getCurrentTMapPoint())).append("\n")
-                        .append("현재위도 : ").append(((MainActivity)context).tmap.getCurrentTMapPoint().getLatitude()).append("\n")
-                        .append("현재경도 : ").append(((MainActivity)context).tmap.getCurrentTMapPoint().getLongitude()).append("\n");
+                        .append("거리 : ").append(item.getDistance(((MainActivity)context).tmap.getCurrentTMapPoint())).append("\n");
 
                 ((MainActivity)context).testTextView.setText(str);
+                ((MainActivity)context).loadAnswer(item.getPOIPoint().getLongitude(),item.getPOIPoint().getLatitude());
+
                 break;
 
             case GroupConstants.MSG_TEST_BT :
