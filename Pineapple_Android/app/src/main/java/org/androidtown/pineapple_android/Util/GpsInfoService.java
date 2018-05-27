@@ -24,7 +24,7 @@ import org.androidtown.pineapple_android.Interface.LocationInterface;
 
 
 public class GpsInfoService extends Service implements LocationListener {
-    private LocationInterface callback;
+    public LocationInterface callback;
 
     private final Context mContext;
 

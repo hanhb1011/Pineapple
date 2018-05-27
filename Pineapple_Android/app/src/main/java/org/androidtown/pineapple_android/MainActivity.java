@@ -35,7 +35,7 @@ import retrofit2.Response;
 
 import static org.androidtown.pineapple_android.GroupConstants.REQ_CODE_SPEECH_INPUT;
 
-public class MainActivity extends AppCompatActivity implements LocationInterface{
+public class MainActivity extends AppCompatActivity {
 
     private View micImageView;
     private TextView speechTextView;
@@ -72,6 +72,25 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
         setView();
         testInit();//테스트
 
+        gps.callback = new LocationInterface() {
+            @Override
+            public void locationChangedCallBack(double lon, double lat) {
+                if(navi.isStarted()){
+                    navi.stateCheck(lat,lon);
+                    switch(navi.getCurrentState()){
+                        case 2: //type : LineString
+                            //그림 그리기
+
+                            break;
+                        case 1: //type : Point
+                            //음성안내
+                            //dpl.getDescription();
+                            //tv.append(navi.getDescription()+"\n");
+                            navi.nextFeature();
+                    }
+                }
+            }
+        };
     }
 
     private void testInit() {
@@ -382,21 +401,4 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
         return (res == PackageManager.PERMISSION_GRANTED);
     }
 
-    @Override
-    public void locationChangedCallBack(double lon, double lat) {
-        if(navi.isStarted()){
-            navi.stateCheck(lat,lon);
-            switch(navi.getCurrentState()){
-                case 2: //type : LineString
-                    //그림 그리기
-
-                    break;
-                case 1: //type : Point
-                    //음성안내
-                    //dpl.getDescription();
-                    //tv.append(navi.getDescription()+"\n");
-                    navi.nextFeature();
-            }
-        }
-    }
 }
