@@ -17,7 +17,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.skt.Tmap.TMapPOIItem;
+
 import org.androidtown.pineapple_android.Interface.LocationInterface;
+import org.androidtown.pineapple_android.Interface.NavigationInterface;
 import org.androidtown.pineapple_android.Model.FindTheWay;
 import org.androidtown.pineapple_android.Retrofit.RetrofitService;
 import org.androidtown.pineapple_android.Util.ApiUtils;
@@ -35,7 +38,7 @@ import retrofit2.Response;
 
 import static org.androidtown.pineapple_android.GroupConstants.REQ_CODE_SPEECH_INPUT;
 
-public class MainActivity extends AppCompatActivity implements LocationInterface{
+public class MainActivity extends AppCompatActivity {
 
     private View micImageView;
     private TextView speechTextView;
@@ -51,9 +54,8 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
 
     private RetrofitService mService;
     FindTheWay mWay;
-    Navigation navi;
+    public static Navigation navi;
     GpsInfoService gps;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +68,37 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
         bindView();
         setView();
         testInit();//테스트
+        setCallback();
+    }
 
+    private void setCallback() {
+        gps.setCallback(new LocationInterface() {
+            @Override
+            public void locationChangedCallBack(double lon, double lat) {
+                if(navi.isStarted()){
+                    navi.stateCheck(lat,lon);
+                    switch(navi.getCurrentState()){
+                        case 2: //type : LineString
+                            //그림 그리기
+
+                            break;
+                        case 1: //type : Point
+                            //음성안내
+                            speak(navi.getDescription());
+                            navi.nextFeature();
+                        default:
+                            break;
+                    }
+                }
+            }
+        });
+
+        tmap.setCallback(new NavigationInterface() { //목적지 정보를 가저온경우
+            @Override
+            public void successToGetDestination(TMapPOIItem item) {
+                loadAnswer(item.getPOIPoint().getLongitude(), item.getPOIPoint().getLatitude());
+            }
+        });
     }
 
     private void testInit() {
@@ -94,6 +126,15 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
             public void onClick(View view) {
                 ChatLogFragment chatLogFragment = new ChatLogFragment();
                 chatLogFragment.show(getFragmentManager(),"");
+            }
+        });
+
+        findViewById(R.id.path_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PathFragment pathFragment = new PathFragment();
+                navi.setCurrentMarker(gps.getLongitude(), gps.getLatitude());
+                pathFragment.show(getFragmentManager(),"");
             }
         });
 
@@ -131,6 +172,8 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
         }else{
             gps = new GpsInfoService(this);
         }
+
+
     }
 
 
@@ -295,12 +338,14 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
     }
 
 
-    public void loadAnswer() {
+    public void loadAnswer(double endX, double endY) {
+        Toast.makeText(this, "11111", Toast.LENGTH_SHORT).show();
         if(gps!=null) {
+            Toast.makeText(this, "22222", Toast.LENGTH_SHORT).show();
             double startX = 126.9823439963945;
             double startY = 37.56461982743129;
-            double endX = 127.000732;
-            double endY = 37.557758;
+            //double endX = 127.000732;
+            //double endY = 37.557758;
 
 
             NavigationBody navigationBody = new NavigationBody();
@@ -308,6 +353,9 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
                 startX = gps.getLongitude();
                 startY = gps.getLatitude();
             }
+
+            String s = "현재위도 : " + startY + "\n" + "현재경도" + startX + "\n";
+            testTextView.append(s);
 
             navigationBody.setStartPoint(startX, startY); //출발지 설정
             navigationBody.setEndPoint(endX, endY); //목적지 설정
@@ -325,11 +373,9 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
                             Log.d("mWay", "null");
                         else {
                             navi.startNavigation(mWay);
-
                             navi.drawWayInMap();
                             if (navi.getCurrentState() == 1) {
-                                //navi.getDescription() , 음성안내
-                                // tv.append(navi.getDescription()+"\n");
+                                speak(navi.getDescription()); //음성안내
                                 navi.nextFeature();
                             } else {
 
@@ -377,21 +423,4 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
         return (res == PackageManager.PERMISSION_GRANTED);
     }
 
-    @Override
-    public void locationChangedCallBack(double lon, double lat) {
-        if(navi.isStarted()){
-            navi.stateCheck(lat,lon);
-            switch(navi.getCurrentState()){
-                case 2: //type : LineString
-                    //그림 그리기
-
-                    break;
-                case 1: //type : Point
-                    //음성안내
-                    //dpl.getDescription();
-                    //tv.append(navi.getDescription()+"\n");
-                    navi.nextFeature();
-            }
-        }
-    }
 }
