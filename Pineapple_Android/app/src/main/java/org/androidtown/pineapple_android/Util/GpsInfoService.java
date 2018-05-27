@@ -193,7 +193,7 @@ public class GpsInfoService extends Service implements LocationListener {
         // TODO Auto-generated method stub
         this.lat = location.getLatitude();
         this.lon = location.getLongitude();
-        callback.locationChangedCallBack(this.lon,this.lat);
+//        callback.locationChangedCallBack(this.lon,this.lat);
     }
 
     public void onStatusChanged(String provider, int status, Bundle extras) {
