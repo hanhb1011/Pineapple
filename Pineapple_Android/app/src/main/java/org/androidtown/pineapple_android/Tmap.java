@@ -45,18 +45,8 @@ public class Tmap {
             public void run() {
                 try {
                     ArrayList<TMapPOIItem> POIItems= tMapData.findAllPOI(keyword);
-                    double minDistance = Double.MAX_VALUE;
-                    TMapPOIItem minTMapPOIItem = null;
-
-                    for(TMapPOIItem item : POIItems ){
-                        //가까운 것부터 찾는다.
-                        double distanceNow = item.getDistance(getCurrentTMapPoint());
-                        if(distanceNow < minDistance) {
-                            minDistance = distanceNow;
-                            minTMapPOIItem = item;
-                        }
-
-                    }
+//                    TMapPOIItem minTMapPOIItem = getNearestTMapPOIItem(POIItems);
+                    TMapPOIItem minTMapPOIItem = POIItems.get(0);
 
                     //찾은 위치 정보를 반환
                     if(minTMapPOIItem !=null) {
@@ -81,6 +71,26 @@ public class Tmap {
 
 
     }
+
+    //가장 가까운 목적지 아이템 반환
+    private TMapPOIItem getNearestTMapPOIItem(ArrayList<TMapPOIItem> POIItems){
+
+        double minDistance = Double.MAX_VALUE;
+        TMapPOIItem minTMapPOIItem = null;
+
+        for(TMapPOIItem item : POIItems){
+            //가까운 것부터 찾는다.
+            double distanceNow = item.getDistance(getCurrentTMapPoint());
+            if(distanceNow < minDistance) {
+                minDistance = distanceNow;
+                minTMapPOIItem = item;
+            }
+
+        }
+
+        return minTMapPOIItem;
+    }
+
 
     //현재 위치 반환
     public TMapPoint getCurrentTMapPoint() {

@@ -55,11 +55,6 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
     GpsInfoService gps;
 
 
-
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
