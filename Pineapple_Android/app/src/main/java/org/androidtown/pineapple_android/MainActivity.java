@@ -3,6 +3,7 @@ package org.androidtown.pineapple_android;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
@@ -17,14 +18,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.skt.Tmap.TMapPOIItem;
+import com.skt.Tmap.TMapGpsManager;
 
-import org.androidtown.pineapple_android.Interface.LocationInterface;
-import org.androidtown.pineapple_android.Interface.NavigationInterface;
 import org.androidtown.pineapple_android.Model.FindTheWay;
 import org.androidtown.pineapple_android.Retrofit.RetrofitService;
 import org.androidtown.pineapple_android.Util.ApiUtils;
-import org.androidtown.pineapple_android.Util.GpsInfoService;
 import org.androidtown.pineapple_android.Util.Navigation;
 import org.androidtown.pineapple_android.Util.NavigationBody;
 
@@ -38,7 +36,37 @@ import retrofit2.Response;
 
 import static org.androidtown.pineapple_android.GroupConstants.REQ_CODE_SPEECH_INPUT;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TMapGpsManager.onLocationChangedCallback {
+
+    @Override
+    public void onLocationChange(Location location) {
+        double lat = location.getLatitude();
+        double lon = location.getLongitude();
+        navi.setCurrentX(lon);
+        navi.setCurrentY(lat);
+
+
+        if(navi.isStarted()){
+            navi.stateCheck(lat,lon);
+            switch(navi.getCurrentState()){
+                case 2: //type : LineString
+
+                    break;
+                case 3: //type : 이탈
+                    break;
+                default:
+                    break;
+                case 1: //type : Point
+                    //음성안내
+                    speak(navi.getDescription());
+                    testTextView.append(navi.getDescription() + "\n");
+                    navi.nextFeature();
+            }
+        }else if(navi.isdSync() && !navi.issSync()){ //네비 시작 x, 목적지 o, 시작위치 o
+            loadAnswer(navi.getEndX(),navi.getEndY());
+            navi.setsSync(true);
+        }
+    }
 
     private View micImageView;
     private TextView speechTextView;
@@ -52,54 +80,24 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<Message> messageList;
 
 
+    TMapGpsManager gps2=null;
+
+
     private RetrofitService mService;
     FindTheWay mWay;
     public static Navigation navi;
-    GpsInfoService gps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         init();
         bindView();
         setView();
         testInit();//테스트
-        setCallback();
     }
 
-    private void setCallback() {
-        gps.setCallback(new LocationInterface() {
-            @Override
-            public void locationChangedCallBack(double lon, double lat) {
-                if(navi.isStarted()){
-                    navi.stateCheck(lat,lon);
-                    switch(navi.getCurrentState()){
-                        case 2: //type : LineString
-                            //그림 그리기
-
-                            break;
-                        case 1: //type : Point
-                            //음성안내
-                            speak(navi.getDescription());
-                            navi.nextFeature();
-                        default:
-                            break;
-                    }
-                }
-            }
-        });
-
-        tmap.setCallback(new NavigationInterface() { //목적지 정보를 가저온경우
-            @Override
-            public void successToGetDestination(TMapPOIItem item) {
-                loadAnswer(item.getPOIPoint().getLongitude(), item.getPOIPoint().getLatitude());
-            }
-        });
-    }
 
     private void testInit() {
         //아두이노에 데이터 전송
@@ -133,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 PathFragment pathFragment = new PathFragment();
-                navi.setCurrentMarker(gps.getLongitude(), gps.getLatitude());
                 pathFragment.show(getFragmentManager(),"");
             }
         });
@@ -166,11 +163,16 @@ public class MainActivity extends AppCompatActivity {
         //RetrofitService 초기화
         mService = ApiUtils.getRetrofitService();
 
-        //gps 퍼미션 및 GpsInfoService 객체 초기화
+        //gps 퍼미션, gps객체 초기화
         if(!checkLocationPermission()) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }else{
-            gps = new GpsInfoService(this);
+            gps2 = new TMapGpsManager(this);
+            gps2.setMinTime(1000*60);
+            gps2.setMinDistance(5);
+            gps2.setProvider(gps2.GPS_PROVIDER);
+            gps2.OpenGps();
+            gps2.getLocation();
         }
 
 
@@ -338,23 +340,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     public void loadAnswer(double endX, double endY) {
-        Toast.makeText(this, "11111", Toast.LENGTH_SHORT).show();
-        if(gps!=null) {
-            Toast.makeText(this, "22222", Toast.LENGTH_SHORT).show();
-            double startX = 126.9823439963945;
-            double startY = 37.56461982743129;
-            //double endX = 127.000732;
-            //double endY = 37.557758;
-
-
-            NavigationBody navigationBody = new NavigationBody();
-            if (gps.isGetLocation()) {
-                startX = gps.getLongitude();
-                startY = gps.getLatitude();
+        if(gps2!=null) {
+            double startX=126.9823439963945;
+            double startY=37.56461982743129;
+            if(gps2!=null) {
+                startX = gps2.getLocation().getLongitude();
+                startY = gps2.getLocation().getLatitude();
             }
+            NavigationBody navigationBody = new NavigationBody();
 
-            String s = "현재위도 : " + startY + "\n" + "현재경도" + startX + "\n";
+            String s = "시작위도 : " + startY + "\n" + "시작경도" + startX + "\n";
             testTextView.append(s);
 
             navigationBody.setStartPoint(startX, startY); //출발지 설정
@@ -373,9 +370,9 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("mWay", "null");
                         else {
                             navi.startNavigation(mWay);
-                            navi.drawWayInMap();
                             if (navi.getCurrentState() == 1) {
                                 speak(navi.getDescription()); //음성안내
+                                testTextView.append(navi.getDescription() + "\n");
                                 navi.nextFeature();
                             } else {
 
@@ -404,7 +401,12 @@ public class MainActivity extends AppCompatActivity {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    gps = new GpsInfoService(this);
+
+                    gps2 = new TMapGpsManager(this);
+                    gps2.setMinTime(1000*60);
+                    gps2.setMinDistance(5);
+                    gps2.setProvider(gps2.GPS_PROVIDER);
+                    gps2.OpenGps();
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.

@@ -9,8 +9,6 @@ import com.skt.Tmap.TMapPoint;
 import com.skt.Tmap.TMapTapi;
 import com.skt.Tmap.TMapView;
 
-import org.androidtown.pineapple_android.Interface.NavigationInterface;
-
 import java.util.ArrayList;
 
 /**
@@ -24,7 +22,6 @@ public class Tmap {
     private TMapView tMapView;
     private TMapTapi tmaptapi;
 
-    NavigationInterface callback;
 
     Tmap(Context context) {
         this.context = context;
@@ -36,9 +33,6 @@ public class Tmap {
         tMapData = new TMapData();
     }
 
-    public void setCallback(NavigationInterface callback){
-        this.callback = callback;
-    }
 
     //키워드를 입력받고 가장 유사도가 높은 결과를 출력한다.
     public void getPOIItem(final String keyword) {
@@ -60,8 +54,6 @@ public class Tmap {
                         message.what = GroupConstants.MSG_TEST;
                         message.obj = minTMapPOIItem;
                         ((MainActivity)context).mainHandler.sendMessage(message);
-                        //Log.d("Tmap Class","success to get minTMapPOIItem");
-                        //callback.successToGetDestination(minTMapPOIItem);
                     }
 
                     //목적지를 찾을 수 없습니다.

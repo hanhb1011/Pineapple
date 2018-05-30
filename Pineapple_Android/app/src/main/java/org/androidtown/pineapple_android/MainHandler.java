@@ -40,8 +40,9 @@ public class MainHandler extends Handler {
                         .append("거리 : ").append(item.getDistance(((MainActivity)context).tmap.getCurrentTMapPoint())).append("\n");
 
                 ((MainActivity)context).testTextView.setText(str);
-                ((MainActivity)context).loadAnswer(item.getPOIPoint().getLongitude(),item.getPOIPoint().getLatitude());
-
+                MainActivity.navi.setdSync(true);
+                MainActivity.navi.setEndX(item.getPOIPoint().getLongitude());
+                MainActivity.navi.setEndY(item.getPOIPoint().getLatitude());
                 break;
 
             case GroupConstants.MSG_TEST_BT :
