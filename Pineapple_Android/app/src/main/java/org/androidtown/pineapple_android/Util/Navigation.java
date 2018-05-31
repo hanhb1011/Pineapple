@@ -39,13 +39,31 @@ public class Navigation {
     private boolean dSync = false;
     private boolean sSync = false;
 
+
+
     private TMapPolyLine[] tMapPolyLines;
 
     private final int type_point=1;
     private final int type_line=2;
 
 
-    private double startX,startY,endX,endY,currentX,currentY;
+    private double startX,startY,endX,endY,currentX,currentY,preX,preY;
+
+    public double getPreX() {
+        return preX;
+    }
+
+    public void setPreX(double preX) {
+        this.preX = preX;
+    }
+
+    public double getPreY() {
+        return preY;
+    }
+
+    public void setPreY(double preY) {
+        this.preY = preY;
+    }
 
     public double getCurrentX() {
         return currentX;
@@ -231,6 +249,7 @@ public class Navigation {
 
     public void nextFeature(){
         featureNumber++;
+        lineNumber = 1;
         if(featureNumber==featureSize){//네비게이션 종료
             isStarted = false;
             sSync = false;
@@ -339,4 +358,16 @@ public class Navigation {
         return d;
     }
 
+
+    private double getAngle(double x, double y){
+        double angle =  Math.atan2(y,x) - Math.atan2(1,0);
+        if(angle<0) angle += 2*Math.PI;
+        return Math.toDegrees(angle);
+    }
+
+    public void calcAngle() {
+        //컴퍼스 센서 방위각 계산
+        //시선 방위각 계산
+        //목적지 방위각 계산
+    }
 }

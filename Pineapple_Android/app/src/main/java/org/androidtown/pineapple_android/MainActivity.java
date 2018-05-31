@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Pair;
@@ -42,9 +43,14 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     public void onLocationChange(Location location) {
         double lat = location.getLatitude();
         double lon = location.getLongitude();
+        navi.setPreX(navi.getCurrentX());
+        navi.setPreY(navi.getCurrentY());
         navi.setCurrentX(lon);
         navi.setCurrentY(lat);
-
+        navi.calcAngle();
+        // 전송할 데이터
+        // 1. 시선 방위각 - 컴퍼스 센서 바위각
+        // 2. 목적지 방위각
 
         if(navi.isStarted()){
             navi.stateCheck(lat,lon);
@@ -63,8 +69,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                     navi.nextFeature();
             }
         }else if(navi.isdSync() && !navi.issSync()){ //네비 시작 x, 목적지 o, 시작위치 o
-            loadAnswer(navi.getEndX(),navi.getEndY());
             navi.setsSync(true);
+            loadAnswer(navi.getEndX(),navi.getEndY());
         }
     }
 
@@ -168,11 +174,10 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }else{
             gps2 = new TMapGpsManager(this);
-            gps2.setMinTime(1000*60);
+            gps2.setMinTime(1000);
             gps2.setMinDistance(5);
             gps2.setProvider(gps2.GPS_PROVIDER);
             gps2.OpenGps();
-            gps2.getLocation();
         }
 
 
@@ -401,7 +406,6 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
                     gps2 = new TMapGpsManager(this);
                     gps2.setMinTime(1000*60);
                     gps2.setMinDistance(5);
@@ -420,9 +424,12 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 
     public boolean checkLocationPermission()
     {
-        String permission = "android.permission.ACCESS_FINE_LOCATION";
-        int res = this.checkCallingOrSelfPermission(permission);
-        return (res == PackageManager.PERMISSION_GRANTED);
+        if ( Build.VERSION.SDK_INT >= 23 &&
+                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return false;
+        }else
+            return true;
     }
 
 }

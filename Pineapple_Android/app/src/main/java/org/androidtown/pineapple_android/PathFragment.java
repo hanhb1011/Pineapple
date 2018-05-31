@@ -32,8 +32,8 @@ public class PathFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_path,container, false);
-        bindView(view);
         navigation = MainActivity.navi;
+        bindView(view);
         drawWayInMap();
 
         constraintLayout.setOnClickListener(new View.OnClickListener() {
