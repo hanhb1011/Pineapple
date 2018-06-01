@@ -12,6 +12,6 @@
     <string name="url_google_services">com.google.android.googlequicksearchbox</string>
     <string name="DEVICE_MAC_ADDRESS"></string>
     <string name="DEVICE_NAME">BEOM</string>
-    <string name="isInitialState">isInitialState</string>
+    <string name="hasUid">hasUid</string>
     <string name="uid">uid</string>
 </resources>

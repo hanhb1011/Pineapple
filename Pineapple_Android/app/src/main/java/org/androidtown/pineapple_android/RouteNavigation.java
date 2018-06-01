@@ -1,12 +1,14 @@
 package org.androidtown.pineapple_android;
 
+import java.util.Calendar;
+
 /**
  * Created by hanhb on 2018-06-01.
  */
 
 public class RouteNavigation {
 
-    private double timestamp;
+    private long timestamp;
     private double srcLatitude;
     private double srcLongitude;
     private double dstLatitude;
@@ -19,8 +21,9 @@ public class RouteNavigation {
 
     }
 
-    public RouteNavigation(double timestamp, double srcLatitude, double srcLongitude, double dstLatitude, double dstLongitude, String dstName, String dstAddress, String dstDistance) {
-        this.timestamp = timestamp;
+    public RouteNavigation(double srcLatitude, double srcLongitude, double dstLatitude, double dstLongitude, String dstName, String dstAddress, String dstDistance) {
+        this.timestamp = Calendar.getInstance().getTimeInMillis();
+
         this.srcLatitude = srcLatitude;
         this.srcLongitude = srcLongitude;
         this.dstLatitude = dstLatitude;
