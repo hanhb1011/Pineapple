@@ -1,12 +1,9 @@
 package org.androidtown.pineapple_android.Util;
 
-import android.content.Context;
 import android.graphics.Color;
 
-import com.skt.Tmap.TMapMarkerItem;
 import com.skt.Tmap.TMapPoint;
 import com.skt.Tmap.TMapPolyLine;
-import com.skt.Tmap.TMapView;
 
 import org.androidtown.pineapple_android.Model.Feature;
 import org.androidtown.pineapple_android.Model.FindTheWay;
@@ -22,8 +19,11 @@ import java.util.List;
  */
 
 public class Navigation {
+    private static Navigation navi = new Navigation();
+    public Navigation getInstance(){
+        return navi;
+    }
     private FindTheWay way;
-    private TMapView tMapView;
     private boolean isStarted = false;
     private int currentState;
     private static String mKey = "345ff3b1-839d-47a2-860f-de2d9dc3acd8";
@@ -162,10 +162,8 @@ public class Navigation {
         this.lineNumber = lineNumber;
     }
 
-    public Navigation(Context context){
+    public Navigation(){
         places = new LinkedList<>();
-        tMapView = new TMapView(context);
-        tMapView.setSKTMapApiKey(mKey);
     }
 
     public FindTheWay getWay() {
@@ -174,14 +172,6 @@ public class Navigation {
 
     public void setWay(FindTheWay way) {
         this.way = way;
-    }
-
-    public TMapView gettMapView() {
-        return tMapView;
-    }
-
-    public void settMapView(TMapView tMapView) {
-        this.tMapView = tMapView;
     }
 
     public List<Place> getPlaces() {
@@ -236,15 +226,7 @@ public class Navigation {
 
             tMapPolyLines[i] = tMapPolyLine;
 
-            //tMapView.addTMapPolyLine("line"+i,tMapPolyLine);
         }
-    }
-    public void drawWayInMap() { //수정
-        setMarker();
-        for(int i=0;i<tMapPolyLines.length;i++){
-            tMapView.addTMapPolyLine("line"+i,tMapPolyLines[i]);
-        }
-        tMapView.refreshMap();
     }
 
     public void nextFeature(){
@@ -278,33 +260,6 @@ public class Navigation {
         }
     }
 
-    public void setMarker(){
-        TMapMarkerItem startItem = new TMapMarkerItem();
-        startItem.setTMapPoint(new TMapPoint(startY,startX));
-        startItem.setName("출발지");
-        startItem.setVisible(TMapMarkerItem.VISIBLE);
-
-        TMapMarkerItem endItem = new TMapMarkerItem();
-        endItem.setTMapPoint(new TMapPoint(endY,endX));
-        endItem.setName("도착지");
-        endItem.setVisible(TMapMarkerItem.VISIBLE);
-
-        tMapView.addMarkerItem("출발지",startItem);
-        tMapView.addMarkerItem("도착지",endItem);
-    }
-
-    public void setCurrentMarker(double currentX, double currentY){
-        try {
-            tMapView.removeMarkerItem("현재위치");
-        }catch(Exception e){}
-        TMapMarkerItem currentItem = new TMapMarkerItem();
-        currentItem.setName("현재위치");
-        currentItem.setTMapPoint(new TMapPoint(currentX, currentY));
-        currentItem.setVisible(TMapMarkerItem.VISIBLE);
-        tMapView.addMarkerItem("현재위치",currentItem);
-
-        tMapView.refreshMap();
-    }
 
     public void startNavigation(FindTheWay w){
         way = w;
@@ -312,6 +267,7 @@ public class Navigation {
         featureNumber = 0;
         features = way.getFeatures();
         currentFeature = features.get(featureNumber);
+        setLineInfo();
         if(currentFeature.getGeometry().getType().equals("Point")) type = type_point;
         else type = type_line;
         lineNumber = 1;
