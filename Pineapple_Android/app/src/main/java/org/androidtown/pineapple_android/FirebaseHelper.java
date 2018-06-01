@@ -12,6 +12,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by hanhb on 2018-06-01.
  */
@@ -30,12 +33,14 @@ public class FirebaseHelper {
     private Context context;
     private static FirebaseDatabase database;
     private static DatabaseReference userRef;
+    private static DatabaseReference trainRef;
     private User user;
 
     public FirebaseHelper(Context context){
         this.context = context;
         database = FirebaseDatabase.getInstance();
         userRef = database.getReference("user");
+        trainRef = database.getReference("train_dataset");
         init(); //initialize uid
 
     }
@@ -44,7 +49,7 @@ public class FirebaseHelper {
         init
         1. uid가 없으면 uid 생성 후 SharedPreference에 저장
         2. 저장된 uid를 MainActivity의 uid 변수에 저장
-
+        3. TODO 시각장애인 앱에서 uid를 알 수 있는 방식 제시해야됨
      */
     private void init() {
         boolean hasUid = SharedPreferenceHelper.getBoolean(context,
@@ -93,10 +98,18 @@ public class FirebaseHelper {
                         MainActivity.user = user;
                         FirebaseHelper.this.user = user;
 
-                        
+                        /*
+                        // 서버로부터 로그 읽기
+                        HashMap<String, RouteNavigation> map = user.getNavigationLog();
+                        if(map != null) {
+                            for(RouteNavigation routeNavigation : map.values()){
+                                Toast.makeText(context, routeNavigation.getDstName(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        */
 
                     } catch (Exception e){
-                        Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
                     }
                 }
 
@@ -111,13 +124,19 @@ public class FirebaseHelper {
 
     }
 
-    //실시간 위치
+    //위치 이동 시 서버에 업데이트
     public void updateCurrentLocation(double currentLatitude, double currentLongitude){
         if(user==null){
             return;
         }
 
+        //위도와 경도에 해당하는 HashMap을 구성
+        Map<String, Object> map = new HashMap<>();
+        map.put("currentLatitude", currentLatitude);
+        map.put("currentLongitude", currentLongitude);
 
+        //서버에 업데이트
+        userRef.child(user.getUid()).updateChildren(map);
 
     }
 
@@ -129,7 +148,39 @@ public class FirebaseHelper {
             return;
         }
 
+        //서버의 User - 해당 uid - navigationLog - 새로운 기록 추가
         userRef.child(user.getUid()).child("navigationLog").push().setValue(routeNavigation);
+    }
+
+
+    //Supervised learning용 데이터를 수집한다.
+    public void addTrainData(final TrainData trainData) {
+        
+        trainRef.push().setValue(trainData);
+
+        /*
+        trainRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                //추후 파싱하기 편한 List 타입으로 저장
+                List<TrainData> dataList = (List<TrainData>) dataSnapshot.getValue(Object.class);
+
+                if(dataList == null){
+                    dataList = new ArrayList<>();
+                }
+                dataList.add(trainData);
+
+                trainRef.setValue(dataList);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        */
+
     }
 
 }

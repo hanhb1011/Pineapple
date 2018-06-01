@@ -15,15 +15,14 @@ public class RouteNavigation {
     private double dstLongitude;
     private String dstName;
     private String dstAddress;
-    private String dstDistance;
+    private double dstDistance;
 
-    public RouteNavigation(){
+    public RouteNavigation() {
 
     }
 
-    public RouteNavigation(double srcLatitude, double srcLongitude, double dstLatitude, double dstLongitude, String dstName, String dstAddress, String dstDistance) {
+    public RouteNavigation(double srcLatitude, double srcLongitude, double dstLatitude, double dstLongitude, String dstName, String dstAddress, double dstDistance) {
         this.timestamp = Calendar.getInstance().getTimeInMillis();
-
         this.srcLatitude = srcLatitude;
         this.srcLongitude = srcLongitude;
         this.dstLatitude = dstLatitude;
@@ -33,11 +32,11 @@ public class RouteNavigation {
         this.dstDistance = dstDistance;
     }
 
-    public double getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(double timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -89,11 +88,11 @@ public class RouteNavigation {
         this.dstAddress = dstAddress;
     }
 
-    public String getDstDistance() {
+    public double getDstDistance() {
         return dstDistance;
     }
 
-    public void setDstDistance(String dstDistance) {
+    public void setDstDistance(double dstDistance) {
         this.dstDistance = dstDistance;
     }
 }

@@ -9,7 +9,7 @@ import java.util.HashMap;
 public class User {
 
     private String uid;
-    private double currentLatitue;
+    private double currentLatitude;
     private double currentLongitude;
     private HashMap<String, RouteNavigation> navigationLog;
 
@@ -29,12 +29,12 @@ public class User {
         this.uid = uid;
     }
 
-    public double getCurrentLatitue() {
-        return currentLatitue;
+    public double getCurrentLatitude() {
+        return currentLatitude;
     }
 
-    public void setCurrentLatitue(double currentLatitue) {
-        this.currentLatitue = currentLatitue;
+    public void setCurrentLatitude(double currentLatitude) {
+        this.currentLatitude = currentLatitude;
     }
 
     public double getCurrentLongitude() {
