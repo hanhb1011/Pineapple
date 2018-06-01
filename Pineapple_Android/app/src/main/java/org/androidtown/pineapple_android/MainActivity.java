@@ -3,11 +3,13 @@ package org.androidtown.pineapple_android;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Pair;
@@ -17,11 +19,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.androidtown.pineapple_android.Interface.LocationInterface;
+import com.skt.Tmap.TMapGpsManager;
+
 import org.androidtown.pineapple_android.Model.FindTheWay;
 import org.androidtown.pineapple_android.Retrofit.RetrofitService;
 import org.androidtown.pineapple_android.Util.ApiUtils;
-import org.androidtown.pineapple_android.Util.GpsInfoService;
 import org.androidtown.pineapple_android.Util.Navigation;
 import org.androidtown.pineapple_android.Util.NavigationBody;
 
@@ -35,7 +37,42 @@ import retrofit2.Response;
 
 import static org.androidtown.pineapple_android.GroupConstants.REQ_CODE_SPEECH_INPUT;
 
-public class MainActivity extends AppCompatActivity implements LocationInterface{
+public class MainActivity extends AppCompatActivity implements TMapGpsManager.onLocationChangedCallback {
+
+    @Override
+    public void onLocationChange(Location location) {
+        double lat = location.getLatitude();
+        double lon = location.getLongitude();
+        navi.setPreX(navi.getCurrentX());
+        navi.setPreY(navi.getCurrentY());
+        navi.setCurrentX(lon);
+        navi.setCurrentY(lat);
+        navi.calcAngle();
+        // 전송할 데이터
+        // 1. 시선 방위각 - 컴퍼스 센서 바위각
+        // 2. 목적지 방위각
+
+        if(navi.isStarted()){
+            navi.stateCheck(lat,lon);
+            switch(navi.getCurrentState()){
+                case 2: //type : LineString
+
+                    break;
+                case 3: //type : 이탈
+                    break;
+                default:
+                    break;
+                case 1: //type : Point
+                    //음성안내
+                    speak(navi.getDescription());
+                    testTextView.append(navi.getDescription() + "\n");
+                    navi.nextFeature();
+            }
+        }else if(navi.isdSync() && !navi.issSync()){ //네비 시작 x, 목적지 o, 시작위치 o
+            navi.setsSync(true);
+            loadAnswer(navi.getEndX(),navi.getEndY());
+        }
+    }
 
     private View micImageView;
     private TextView speechTextView;
@@ -49,25 +86,24 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
     public static ArrayList<Message> messageList;
 
 
+    TMapGpsManager gps2=null;
+
+
     private RetrofitService mService;
     FindTheWay mWay;
-    Navigation navi;
-    GpsInfoService gps;
-
+    public static Navigation navi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         init();
         bindView();
         setView();
         testInit();//테스트
-
     }
+
 
     private void testInit() {
         //아두이노에 데이터 전송
@@ -94,6 +130,14 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
             public void onClick(View view) {
                 ChatLogFragment chatLogFragment = new ChatLogFragment();
                 chatLogFragment.show(getFragmentManager(),"");
+            }
+        });
+
+        findViewById(R.id.path_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PathFragment pathFragment = new PathFragment();
+                pathFragment.show(getFragmentManager(),"");
             }
         });
 
@@ -125,12 +169,18 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
         //RetrofitService 초기화
         mService = ApiUtils.getRetrofitService();
 
-        //gps 퍼미션 및 GpsInfoService 객체 초기화
+        //gps 퍼미션, gps객체 초기화
         if(!checkLocationPermission()) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }else{
-            gps = new GpsInfoService(this);
+            gps2 = new TMapGpsManager(this);
+            gps2.setMinTime(1000);
+            gps2.setMinDistance(5);
+            gps2.setProvider(gps2.GPS_PROVIDER);
+            gps2.OpenGps();
         }
+
+
     }
 
 
@@ -295,19 +345,19 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
     }
 
 
-    public void loadAnswer() {
-        if(gps!=null) {
-            double startX = 126.9823439963945;
-            double startY = 37.56461982743129;
-            double endX = 127.000732;
-            double endY = 37.557758;
 
-
-            NavigationBody navigationBody = new NavigationBody();
-            if (gps.isGetLocation()) {
-                startX = gps.getLongitude();
-                startY = gps.getLatitude();
+    public void loadAnswer(double endX, double endY) {
+        if(gps2!=null) {
+            double startX=126.9823439963945;
+            double startY=37.56461982743129;
+            if(gps2!=null) {
+                startX = gps2.getLocation().getLongitude();
+                startY = gps2.getLocation().getLatitude();
             }
+            NavigationBody navigationBody = new NavigationBody();
+
+            String s = "시작위도 : " + startY + "\n" + "시작경도" + startX + "\n";
+            testTextView.append(s);
 
             navigationBody.setStartPoint(startX, startY); //출발지 설정
             navigationBody.setEndPoint(endX, endY); //목적지 설정
@@ -325,11 +375,9 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
                             Log.d("mWay", "null");
                         else {
                             navi.startNavigation(mWay);
-
-                            navi.drawWayInMap();
                             if (navi.getCurrentState() == 1) {
-                                //navi.getDescription() , 음성안내
-                                // tv.append(navi.getDescription()+"\n");
+                                speak(navi.getDescription()); //음성안내
+                                testTextView.append(navi.getDescription() + "\n");
                                 navi.nextFeature();
                             } else {
 
@@ -358,7 +406,11 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    gps = new GpsInfoService(this);
+                    gps2 = new TMapGpsManager(this);
+                    gps2.setMinTime(1000*60);
+                    gps2.setMinDistance(5);
+                    gps2.setProvider(gps2.GPS_PROVIDER);
+                    gps2.OpenGps();
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
@@ -372,26 +424,12 @@ public class MainActivity extends AppCompatActivity implements LocationInterface
 
     public boolean checkLocationPermission()
     {
-        String permission = "android.permission.ACCESS_FINE_LOCATION";
-        int res = this.checkCallingOrSelfPermission(permission);
-        return (res == PackageManager.PERMISSION_GRANTED);
+        if ( Build.VERSION.SDK_INT >= 23 &&
+                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return false;
+        }else
+            return true;
     }
 
-    @Override
-    public void locationChangedCallBack(double lon, double lat) {
-        if(navi.isStarted()){
-            navi.stateCheck(lat,lon);
-            switch(navi.getCurrentState()){
-                case 2: //type : LineString
-                    //그림 그리기
-
-                    break;
-                case 1: //type : Point
-                    //음성안내
-                    //dpl.getDescription();
-                    //tv.append(navi.getDescription()+"\n");
-                    navi.nextFeature();
-            }
-        }
-    }
 }

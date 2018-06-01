@@ -22,6 +22,7 @@ public class Tmap {
     private TMapView tMapView;
     private TMapTapi tmaptapi;
 
+
     Tmap(Context context) {
         this.context = context;
         tMapView = new TMapView(context);
@@ -30,9 +31,8 @@ public class Tmap {
         tmaptapi = new TMapTapi(context);
         tmaptapi.setSKTMapAuthentication(tmapKey);
         tMapData = new TMapData();
-
-
     }
+
 
     //키워드를 입력받고 가장 유사도가 높은 결과를 출력한다.
     public void getPOIItem(final String keyword) {
