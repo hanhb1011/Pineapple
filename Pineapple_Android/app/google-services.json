@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "1075302303491",
+    "firebase_url": "https://pineappleandroid-21bd6.firebaseio.com",
+    "project_id": "pineappleandroid-21bd6",
+    "storage_bucket": "pineappleandroid-21bd6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1075302303491:android:4ae93e2ce9bbdd8b",
+        "android_client_info": {
+          "package_name": "org.androidtown.pineapple_android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1075302303491-57tvlj4hd4mqq9jejqci0uc4ku46p8ps.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.androidtown.pineapple_android",
+            "certificate_hash": "b0a7b16e446ef1ebd24686a11fbac06b98749fcc"
+          }
+        },
+        {
+          "client_id": "1075302303491-7i2sbfp6misht50u3934cueb9ssdl2h8.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "1075302303491-7i2sbfp6misht50u3934cueb9ssdl2h8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMhQi7HkVhEAOg8gqOZ9ja2U7on7vsViI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1075302303491-7i2sbfp6misht50u3934cueb9ssdl2h8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

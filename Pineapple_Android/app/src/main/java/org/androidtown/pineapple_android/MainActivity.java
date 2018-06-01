@@ -84,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     public MainHandler mainHandler;
     public TextToSpeech tts;
     public static ArrayList<Message> messageList;
+    public static User user;
+    public static FirebaseHelper firebaseHelper;
 
 
     TMapGpsManager gps2=null;
@@ -144,6 +146,9 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     }
 
     private void init() {
+        //파이어베이스 초기화
+        firebaseHelper = new FirebaseHelper(this);
+
         //핸들러 초기화
         mainHandler = new MainHandler(this);
 
