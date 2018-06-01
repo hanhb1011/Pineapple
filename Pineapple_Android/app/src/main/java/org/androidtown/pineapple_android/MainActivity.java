@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     public MainHandler mainHandler;
     public TextToSpeech tts;
     public static ArrayList<Message> messageList;
+    public static String uid;
 
 
     TMapGpsManager gps2=null;
