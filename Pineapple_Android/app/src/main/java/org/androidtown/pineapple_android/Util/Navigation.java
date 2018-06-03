@@ -1,12 +1,9 @@
 package org.androidtown.pineapple_android.Util;
 
-import android.content.Context;
 import android.graphics.Color;
 
-import com.skt.Tmap.TMapMarkerItem;
 import com.skt.Tmap.TMapPoint;
 import com.skt.Tmap.TMapPolyLine;
-import com.skt.Tmap.TMapView;
 
 import org.androidtown.pineapple_android.Model.Feature;
 import org.androidtown.pineapple_android.Model.FindTheWay;
@@ -22,10 +19,12 @@ import java.util.List;
  */
 
 public class Navigation {
+    private static Navigation navi = new Navigation();
+    public static Navigation getInstance(){
+        return navi;
+    }
     private FindTheWay way;
-    private TMapView tMapView;
     private boolean isStarted = false;
-    private int currentState;
     private static String mKey = "345ff3b1-839d-47a2-860f-de2d9dc3acd8";
     private int lineNumber;
     private int featureNumber;
@@ -39,6 +38,9 @@ public class Navigation {
     private boolean dSync = false;
     private boolean sSync = false;
 
+    private double distance = 0.0d;
+
+
 
 
     private TMapPolyLine[] tMapPolyLines;
@@ -47,7 +49,32 @@ public class Navigation {
     private final int type_line=2;
 
 
-    private double startX,startY,endX,endY,currentX,currentY,preX,preY;
+    private double startX=0,startY=0,endX=0,endY=0,currentX=0,currentY=0,preX=0,preY=0;
+    private double destinationAngle=0.0d;
+
+    public int getFeatureSize() {
+        return featureSize;
+    }
+
+    public void setFeatureSize(int featureSize) {
+        this.featureSize = featureSize;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
+
+    public double getDestinationAngle() {
+        return destinationAngle;
+    }
+
+    public void setDestinationAngle(double destinationAngle) {
+        this.destinationAngle = destinationAngle;
+    }
 
     public double getPreX() {
         return preX;
@@ -162,10 +189,8 @@ public class Navigation {
         this.lineNumber = lineNumber;
     }
 
-    public Navigation(Context context){
+    public Navigation(){
         places = new LinkedList<>();
-        tMapView = new TMapView(context);
-        tMapView.setSKTMapApiKey(mKey);
     }
 
     public FindTheWay getWay() {
@@ -174,14 +199,6 @@ public class Navigation {
 
     public void setWay(FindTheWay way) {
         this.way = way;
-    }
-
-    public TMapView gettMapView() {
-        return tMapView;
-    }
-
-    public void settMapView(TMapView tMapView) {
-        this.tMapView = tMapView;
     }
 
     public List<Place> getPlaces() {
@@ -198,14 +215,6 @@ public class Navigation {
 
     public void setStarted(boolean started) {
         isStarted = started;
-    }
-
-    public int getCurrentState() {
-        return currentState;
-    }
-
-    public void setCurrentState(int currentState) {
-        this.currentState = currentState;
     }
 
     public TMapPolyLine[] gettMapPolyLines() {
@@ -236,15 +245,7 @@ public class Navigation {
 
             tMapPolyLines[i] = tMapPolyLine;
 
-            //tMapView.addTMapPolyLine("line"+i,tMapPolyLine);
         }
-    }
-    public void drawWayInMap() { //수정
-        setMarker();
-        for(int i=0;i<tMapPolyLines.length;i++){
-            tMapView.addTMapPolyLine("line"+i,tMapPolyLines[i]);
-        }
-        tMapView.refreshMap();
     }
 
     public void nextFeature(){
@@ -257,13 +258,16 @@ public class Navigation {
         }else {
             currentFeature = features.get(featureNumber);
             if (currentFeature.getGeometry().getType().equals("Point")) { //type : Point
-                //음성안내
                 type = type_point;
-                currentState = 1;
                 description = currentFeature.getProperties().getDescription();
                 double x = (double)currentFeature.getGeometry().getCoordinates().get(0);
                 double y = (double)currentFeature.getGeometry().getCoordinates().get(1);
                 currentPlace = new Place(x,y,featureNumber);
+
+                distance = getDistanceFromLatLon(x,y,currentX,currentY);
+                if(distance<=10){
+                    nextFeature();
+                }
             } else { //type : LineString
                 type = type_line;
                 List<Place> temp = new LinkedList<>();
@@ -273,38 +277,11 @@ public class Navigation {
                 }
                 currentPlaces = temp;
                 lineNumber = 1;
-                currentState = 2;
+                currentPlace = currentPlaces.get(lineNumber);
             }
         }
     }
 
-    public void setMarker(){
-        TMapMarkerItem startItem = new TMapMarkerItem();
-        startItem.setTMapPoint(new TMapPoint(startY,startX));
-        startItem.setName("출발지");
-        startItem.setVisible(TMapMarkerItem.VISIBLE);
-
-        TMapMarkerItem endItem = new TMapMarkerItem();
-        endItem.setTMapPoint(new TMapPoint(endY,endX));
-        endItem.setName("도착지");
-        endItem.setVisible(TMapMarkerItem.VISIBLE);
-
-        tMapView.addMarkerItem("출발지",startItem);
-        tMapView.addMarkerItem("도착지",endItem);
-    }
-
-    public void setCurrentMarker(double currentX, double currentY){
-        try {
-            tMapView.removeMarkerItem("현재위치");
-        }catch(Exception e){}
-        TMapMarkerItem currentItem = new TMapMarkerItem();
-        currentItem.setName("현재위치");
-        currentItem.setTMapPoint(new TMapPoint(currentX, currentY));
-        currentItem.setVisible(TMapMarkerItem.VISIBLE);
-        tMapView.addMarkerItem("현재위치",currentItem);
-
-        tMapView.refreshMap();
-    }
 
     public void startNavigation(FindTheWay w){
         way = w;
@@ -312,15 +289,26 @@ public class Navigation {
         featureNumber = 0;
         features = way.getFeatures();
         currentFeature = features.get(featureNumber);
-        if(currentFeature.getGeometry().getType().equals("Point")) type = type_point;
-        else type = type_line;
+        setLineInfo();
         lineNumber = 1;
         featureSize = features.size();
-        if(type == type_point){ //type : Point
+        if(currentFeature.getGeometry().getType().equals("Point")) {
+            type = type_point;
             description = currentFeature.getProperties().getDescription();
-            currentState = 1;
-        }else{ //type : LineString
-            currentState = 2;
+            double x = (double)currentFeature.getGeometry().getCoordinates().get(0);
+            double y = (double)currentFeature.getGeometry().getCoordinates().get(1);
+            currentPlace = new Place(x,y,featureNumber);
+        }
+        else{
+            type = type_line;
+            List<Place> temp = new LinkedList<>();
+            for (Object o : currentFeature.getGeometry().getCoordinates()) {
+                List<Double> l = (List<Double>) o;
+                temp.add(new Place(l.get(0), l.get(1), featureNumber));
+            }
+            currentPlaces = temp;
+            lineNumber = 1;
+            currentPlace = currentPlaces.get(lineNumber);
         }
     }
 
@@ -328,21 +316,28 @@ public class Navigation {
         if(type == type_point){ //type : Point
             double lon2 = currentPlace.getX();
             double lat2 = currentPlace.getY();
-            int dis = (int)getDistanceFromLatLon(lon1,lat1,lon2,lat2);
-            if(dis<=5){
+
+            distance = (int)getDistanceFromLatLon(lon1,lat1,lon2,lat2);
+
+            if(distance<=10){
                 nextFeature();
             }
         }else{//type : LineString
             currentPlace = currentPlaces.get(lineNumber);
             double lon2 = currentPlace.getX();
             double lat2 = currentPlace.getY();
-            int dis = (int)getDistanceFromLatLon(lon1,lat1,lon2,lat2);
-            if( (currentPlaces.size() == lineNumber-1) && (dis <= 5) ){ //LineString 마지막 노드 도달, nextFeature
-                nextFeature();
-            }else if(dis <= 5){ //LineString 진행중
+
+            distance = (int)getDistanceFromLatLon(lon1,lat1,lon2,lat2);
+
+            if(distance <= 10){ //LineString 진행중
                 lineNumber++;
-                currentState = 2;
+                if(currentPlaces.size() == lineNumber){//linestring 끝 도달
+                    nextFeature();
+                }else {
+                    currentPlace = currentPlaces.get(lineNumber);
+                }
             }
+
         }
     }
 
@@ -365,9 +360,17 @@ public class Navigation {
         return Math.toDegrees(angle);
     }
 
-    public void calcAngle() {
+    public boolean calcAngle() {
         //컴퍼스 센서 방위각 계산
         //시선 방위각 계산
         //목적지 방위각 계산
+        if(currentPlace!=null) {
+            double dX = currentPlace.getX();
+            double dY = currentPlace.getY();
+
+            destinationAngle = getAngle(dX - currentX, dY - currentY);
+            return true;
+        }
+        return false;
     }
 }
