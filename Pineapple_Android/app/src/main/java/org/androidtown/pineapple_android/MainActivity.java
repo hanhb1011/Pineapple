@@ -47,27 +47,20 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         navi.setPreY(navi.getCurrentY());
         navi.setCurrentX(lon);
         navi.setCurrentY(lat);
-        navi.calcAngle();
-        // 전송할 데이터
-        // 1. 시선 방위각 - 컴퍼스 센서 바위각
-        // 2. 목적지 방위각
+        if(navi.calcAngle()) {
+            try {
+                int data = (int) navi.getDestinationAngle();
+                data = data << 4;
+                data = data | 1;
+                bluetoothHelper.sendData(data); //목적지 방위각 전송
+            } catch (Exception e) {
+            }
+        }
 
         if(navi.isStarted()){
             navi.stateCheck(lat,lon);
-            switch(navi.getCurrentState()){
-                case 2: //type : LineString
-
-                    break;
-                case 3: //type : 이탈
-                    break;
-                default:
-                    break;
-                case 1: //type : Point
-                    //음성안내
-                    speak(navi.getDescription());
-                    testTextView.append(navi.getDescription() + "\n");
-                    navi.nextFeature();
-            }
+            naviTextView.append("f : " + navi.getFeatureNumber() + " dis : " + navi.getDistance() + " angle : " +
+                    (int)navi.getDestinationAngle() + "\n");
         }else if(navi.isdSync() && !navi.issSync()){ //네비 시작 x, 목적지 o, 시작위치 o
             navi.setsSync(true);
             loadAnswer(navi.getEndX(),navi.getEndY());
@@ -78,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     private TextView speechTextView;
     private TextView responseTextView;
     public TextView testTextView;
+    public TextView naviTextView;
     private BluetoothHelper bluetoothHelper;
     private VoiceRecognizer voiceRecognizer;
     public Tmap tmap;
@@ -169,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         tts = getTTSInstance();
 
         //Navigation 초기화
-        navi = new Navigation(this);
+        navi = Navigation.getInstance();
 
         //RetrofitService 초기화
         mService = ApiUtils.getRetrofitService();
@@ -179,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }else{
             gps2 = new TMapGpsManager(this);
-            gps2.setMinTime(1000);
+            gps2.setMinTime(1000*10);
             gps2.setMinDistance(5);
             gps2.setProvider(gps2.GPS_PROVIDER);
             gps2.OpenGps();
@@ -195,6 +189,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         speechTextView = findViewById(R.id.speech_tv);
         responseTextView = findViewById(R.id.response_tv);
         testTextView = findViewById(R.id.test_tv);
+        naviTextView = findViewById(R.id.navi);
     }
 
     //뷰 초기화
@@ -214,7 +209,6 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                 }
             }
         });
-
     }
 
     @Override
@@ -363,13 +357,13 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 
             String s = "시작위도 : " + startY + "\n" + "시작경도" + startX + "\n";
             testTextView.append(s);
+            testTextView.append("네비게이션 시작\n");
 
             navigationBody.setStartPoint(startX, startY); //출발지 설정
             navigationBody.setEndPoint(endX, endY); //목적지 설정
 
-            navi.gettMapView().setCenterPoint(startX, startY); //중심지 설정
-            navi.setStartEndXY(startX, startY, endX, endY); //출발지, 목적지 알리기
-
+            navi.setStartX(startX);
+            navi.setStartY(startY);
             mService.getFindTheWay(navigationBody.getRequestBody()).enqueue(new Callback<FindTheWay>() {
                 @Override
                 public void onResponse(Call<FindTheWay> call, Response<FindTheWay> response) {
@@ -380,13 +374,10 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                             Log.d("mWay", "null");
                         else {
                             navi.startNavigation(mWay);
-                            if (navi.getCurrentState() == 1) {
-                                speak(navi.getDescription()); //음성안내
-                                testTextView.append(navi.getDescription() + "\n");
-                                navi.nextFeature();
-                            } else {
-
-                            }
+                            navi.stateCheck(navi.getStartY(), navi.getStartX());
+                            naviTextView.append("fs : " + navi.getFeatureSize() + "\n");
+                            naviTextView.append("f : " + navi.getFeatureNumber() + " dis : " + navi.getDistance() + " angle : " +
+                                    (int)navi.getDestinationAngle() + "\n");
                         }
                     } else {
                         int statusCode = response.code();
@@ -412,7 +403,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     gps2 = new TMapGpsManager(this);
-                    gps2.setMinTime(1000*60);
+                    gps2.setMinTime(1000*5);
                     gps2.setMinDistance(5);
                     gps2.setProvider(gps2.GPS_PROVIDER);
                     gps2.OpenGps();
