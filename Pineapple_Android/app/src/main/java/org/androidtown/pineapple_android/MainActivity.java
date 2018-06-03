@@ -115,10 +115,18 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         testButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(testEditText.getText().toString().length()>0){
+                String inputString = testEditText.getText().toString();
+                if(inputString.length()>0){
 
                     try {
-                        bluetoothHelper.sendData(Integer.valueOf(testEditText.getText().toString().trim()));
+                        byte[] byteArray = new byte[inputString.length()];
+                        for(int i = 0; i < inputString.length(); i++){
+                            byteArray[i] = (byte) inputString.charAt(i);
+                        }
+
+                        //bluetoothHelper.sendData(Integer.valueOf(testEditText.getText().toString().trim()));
+                        bluetoothHelper.sendData(byteArray);
+
                     } catch (Exception e) {
                         Toast.makeText(MainActivity.this, "TYPE ERROR", Toast.LENGTH_SHORT).show();
                     }

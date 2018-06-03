@@ -31,8 +31,9 @@ public class BluetoothThread extends Thread{
     @Override
     public void run() {
         //다른 액티비티는 destroyed 되기 때문에 메인액티비티에서 실행시켜야함
-        if((context instanceof MainActivity) || !bluetoothSocket.isConnected())
+        if(!bluetoothSocket.isConnected()) {
             return;
+        }
 
         while(isOn) {
 
