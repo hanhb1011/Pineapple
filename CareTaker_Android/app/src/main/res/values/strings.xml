@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">CareTaker_Android</string>
+    <string name="inputKey">key 입력</string>
 </resources>
