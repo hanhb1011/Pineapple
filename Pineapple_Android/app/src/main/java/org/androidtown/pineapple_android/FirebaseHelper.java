@@ -155,7 +155,7 @@ public class FirebaseHelper {
 
     //Supervised learning용 데이터를 수집한다.
     public void addTrainData(final TrainData trainData) {
-        
+
         trainRef.push().setValue(trainData);
 
         /*
