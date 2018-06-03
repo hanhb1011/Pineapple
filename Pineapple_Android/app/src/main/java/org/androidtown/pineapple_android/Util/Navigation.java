@@ -207,7 +207,7 @@ public class Navigation {
 
         for(Feature f : features) {
             if(f.getGeometry().getType().equals("LineString")){
-                for(Object o : f.getGeometry().getCoordinates()){
+                for(Object o : f.getGeometry().ge tCoordinates()){
                     List<Double> l = (List<Double>)o;
                     alTMapPoint.add(new TMapPoint(l.get(1),l.get(0)));
                 }
