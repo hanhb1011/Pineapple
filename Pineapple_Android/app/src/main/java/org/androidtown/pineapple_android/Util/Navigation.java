@@ -207,7 +207,7 @@ public class Navigation {
 
         for(Feature f : features) {
             if(f.getGeometry().getType().equals("LineString")){
-                for(Object o : f.getGeometry().ge tCoordinates()){
+                for(Object o : f.getGeometry().getCoordinates()){
                     List<Double> l = (List<Double>)o;
                     alTMapPoint.add(new TMapPoint(l.get(1),l.get(0)));
                 }
@@ -325,5 +325,7 @@ public class Navigation {
         //컴퍼스 센서 방위각 계산
         //시선 방위각 계산
         //목적지 방위각 계산
+
+
     }
 }
