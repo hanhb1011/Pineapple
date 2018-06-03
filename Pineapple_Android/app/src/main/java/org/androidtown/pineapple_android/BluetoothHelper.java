@@ -28,16 +28,12 @@ public class BluetoothHelper {
     //생성자에서 context를 받는다
     BluetoothHelper(Context context){
         this.context = context;
-
-        bluetoothAdapter=BluetoothAdapter.getDefaultAdapter();
-        if(bluetoothAdapter == null) {
-            Toast.makeText(context, R.string.bluetooth_not_found, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
     }
 
     public void connect(){
+        if(bluetoothAdapter == null) {
+            bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        }
 
         //블루투스 어댑터가 존재하지 않을 경우 메시지 띄우고 리턴
         if(bluetoothAdapter == null) {
@@ -51,6 +47,7 @@ public class BluetoothHelper {
             Intent enableAdapter = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             Toast.makeText(context, R.string.bluetooth_disabled, Toast.LENGTH_SHORT).show();
             ((Activity)context).startActivityForResult(enableAdapter, GroupConstants.REQ_CODE_BLUETOOTH_CONN);
+            return;
         }
 
         Set<BluetoothDevice> bondedDevices = bluetoothAdapter.getBondedDevices();
@@ -75,6 +72,7 @@ public class BluetoothHelper {
         //기기를 찾을 수 없으면 리턴
         if(!found) {
             Toast.makeText(context, R.string.bluetooth_not_found, Toast.LENGTH_SHORT).show();
+
             return;
         }
 
@@ -101,10 +99,9 @@ public class BluetoothHelper {
     //Integer 형태로 데이터 전송
     public void sendData(int inputData){
         if(bluetoothSocket == null || !bluetoothSocket.isConnected()) {
-            Toast.makeText(context, R.string.bluetooth_not_found, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.bluetooth_device_not_found, Toast.LENGTH_SHORT).show();
             return;
         }
-
         //outputStream을 통해 데이터 전송
         try {
             bluetoothSocket.getOutputStream().write(inputData);

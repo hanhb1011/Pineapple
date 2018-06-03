@@ -73,7 +73,7 @@ public class Tmap {
     }
 
     //가장 가까운 목적지 아이템 반환
-    private TMapPOIItem getNearestTMapPOIItem(ArrayList<TMapPOIItem> POIItems){
+    private TMapPOIItem getNearestTMapPOIItem(ArrayList<TMapPOIItem> POIItems) {
 
         double minDistance = Double.MAX_VALUE;
         TMapPOIItem minTMapPOIItem = null;
