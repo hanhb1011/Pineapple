@@ -77,6 +77,12 @@ public class MainActivity extends Activity {
     private void initView() {
         tempTextView = findViewById(R.id.temp_tv);
 
+        //액션바 숨김
+        try {
+            getActionBar().hide();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 

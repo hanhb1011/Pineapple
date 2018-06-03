@@ -52,6 +52,20 @@ public class SignInActivity extends AppCompatActivity {
             }
         });
 
+
+        //이미 입력된 키가 있으면 자동으로 EditText에 입력
+        String existingKey = SharedPreferenceHelper.getString(this, "key");
+        if(existingKey.length()>0){
+            inputEditText.setText(existingKey);
+        }
+
+        //액션바 숨김
+        try {
+            getActionBar().hide();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     private void attemptSignin(final String inputString) {
@@ -72,6 +86,8 @@ public class SignInActivity extends AppCompatActivity {
                 } else {
                     //If user exists
                     MainActivity.key = inputString;
+                    SharedPreferenceHelper.putString(SignInActivity.this, "key", inputString);
+
 
                     Intent intent = new Intent(SignInActivity.this, MainActivity.class);
                     startActivity(intent);
