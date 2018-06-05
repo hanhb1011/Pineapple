@@ -4,15 +4,17 @@ import android.content.Context;
 import android.os.Message;
 
 import com.skt.Tmap.TMapData;
-import com.skt.Tmap.TMapPOIItem;
-import com.skt.Tmap.TMapPoint;
 import com.skt.Tmap.TMapTapi;
 import com.skt.Tmap.TMapView;
 
-import java.util.ArrayList;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
- * Created by hanhb on 2018-04-11.
+ * Created by hanhb on 2018-06-03.
  */
 
 public class TmapHelper {
@@ -21,6 +23,7 @@ public class TmapHelper {
     private Context context;
     private TMapView tMapView;
     private TMapTapi tmaptapi;
+    private MyHandler myHandler;
 
 
     public TmapHelper(Context context) {
@@ -31,8 +34,42 @@ public class TmapHelper {
         tmaptapi = new TMapTapi(context);
         tmaptapi.setSKTMapAuthentication(tmapKey);
         tMapData = new TMapData();
+        myHandler = new MyHandler(context);
     }
 
-    
+
+    //위도와 경도 정보를 받은 뒤 UI를 업데이트한다
+    public void getCurrentAddressAndUpdateUI(final double latitude, final double longitude) {
+        new Thread(){
+
+            @Override
+            public void run() {
+                super.run();
+
+                try {
+                    String address = tMapData.convertGpsToAddress(latitude,longitude);
+                    if(address == null) {
+                        return;
+                    }
+
+                    Message message = new Message();
+                    message.what = 1;
+                    message.obj = address;
+                    myHandler.sendMessage(message);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
+                } catch (SAXException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        }.start();
+
+
+    }
 
 }

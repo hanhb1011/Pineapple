@@ -1,7 +1,10 @@
 package com.example.hanhb.caretaker_android;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,10 +18,12 @@ import java.util.Map;
 
 public class MainActivity extends Activity {
     public static String key;
+    public static User user;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference userRef;
+    private TmapHelper tmapHelper;
 
-    private TextView tempTextView;
+    private Button firstButton, secondButton, thirdButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,9 +33,9 @@ public class MainActivity extends Activity {
         initView();
         init();
 
-
     }
 
+    //클래스 초기화
     private void init() {
         if(key == null){
             Toast.makeText(this, "인증 오류", Toast.LENGTH_SHORT).show();
@@ -39,23 +44,24 @@ public class MainActivity extends Activity {
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         userRef = firebaseDatabase.getReference().child("user").child(key);
+        tmapHelper = new TmapHelper(this);
 
-        //temp
+        //서버로부터 사용자의 정보를 주기적으로 불러온다.
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.getValue(User.class);
+                MainActivity.user = dataSnapshot.getValue(User.class);
 
                 if(user == null) {
                     return;
                 }
-
+                /*
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append("위도").append(user.getCurrentLatitude())
                         .append("\n경도").append(user.getCurrentLongitude()).append("\n");
 
                 Map<String, RouteNavigation> map = user.getNavigationLog();
-                if(map !=null) {
+                if(map != null) {
                     stringBuilder.append("\n경로 안내 기록");
                     for(RouteNavigation routeNavigation : map.values()){
                         stringBuilder.append("\n경로 이름: ").append(routeNavigation.getDstName())
@@ -63,7 +69,14 @@ public class MainActivity extends Activity {
                     }
                 }
 
-                tempTextView.setText(stringBuilder.toString());
+                */
+
+                /*
+                //update ui
+                if(tmapHelper !=null && tempTextView !=null) {
+                    tmapHelper.getCurrentAddressAndUpdateUI(user.getCurrentLatitude(), user.getCurrentLongitude());
+                }
+                */
             }
 
             @Override
@@ -72,10 +85,10 @@ public class MainActivity extends Activity {
             }
         });
 
+
     }
 
     private void initView() {
-        tempTextView = findViewById(R.id.temp_tv);
 
         //액션바 숨김
         try {
@@ -83,6 +96,42 @@ public class MainActivity extends Activity {
         } catch (Exception e){
             e.printStackTrace();
         }
+
+        firstButton = findViewById(R.id.first_btn);
+        secondButton = findViewById(R.id.second_btn);
+        thirdButton = findViewById(R.id.third_btn);
+
+
+        //사용자 상태 보기
+        firstButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, StatusActivity.class);
+                startActivity(intent);
+
+
+            }
+        });
+
+        //음성메시지 보내기
+        secondButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+            }
+        });
+
+        //경로탐색 기록 보기
+        thirdButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, LogActivity.class);
+                startActivity(intent);
+
+
+            }
+        });
     }
 
 
