@@ -37,7 +37,9 @@ public class Navigation {
     private int type;
     private boolean dSync = false;
     private boolean sSync = false;
+    private int leaveWayCount = 0;
 
+    private double preDistance = 1000;
     private double distance = 0.0d;
 
     private static boolean firstLocation=false;
@@ -61,6 +63,14 @@ public class Navigation {
 
     public static void setFirstLocation(boolean firstLocation) {
         Navigation.firstLocation = firstLocation;
+    }
+
+    public int getLeaveWayCount() {
+        return leaveWayCount;
+    }
+
+    public void setLeaveWayCount(int leaveWayCount) {
+        this.leaveWayCount = leaveWayCount;
     }
 
     public int getFeatureSize() {
@@ -289,6 +299,8 @@ public class Navigation {
                 currentPlaces = temp;
                 lineNumber = 1;
                 currentPlace = currentPlaces.get(lineNumber);
+
+                distance = getDistanceFromLatLon(currentPlace.getX(),currentPlace.getY(),currentX,currentY);
             }
         }
     }
@@ -325,10 +337,18 @@ public class Navigation {
 
     public void stateCheck(double lat1, double lon1) {
         if(type == type_point){ //type : Point
-            double lon2 = currentPlace.getX();
-            double lat2 = currentPlace.getY();
+            double lon2 = currentPlace.getX();//목표 x
+            double lat2 = currentPlace.getY();//목표 y
 
+            if(distance!=0)
+                preDistance = distance;
             distance = (int)getDistanceFromLatLon(lon1,lat1,lon2,lat2);
+
+            if(distance > preDistance) {
+                leaveWayCount++;
+            }else{
+                leaveWayCount = 0;
+            }
 
             if(distance<=10){
                 nextFeature();
@@ -338,7 +358,16 @@ public class Navigation {
             double lon2 = currentPlace.getX();
             double lat2 = currentPlace.getY();
 
+            if(distance!=0)
+                preDistance = distance;
             distance = (int)getDistanceFromLatLon(lon1,lat1,lon2,lat2);
+
+            if(distance > preDistance) {
+                leaveWayCount++;
+            }else{
+                leaveWayCount = 0;
+            }
+
 
             if(distance <= 10){ //LineString 진행중
                 lineNumber++;

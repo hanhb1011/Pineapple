@@ -70,6 +70,9 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 
         if(navi.isStarted()){
             navi.stateCheck(lat,lon);
+            if(navi.getLeaveWayCount()>0){//거리가 멀어진 경우
+                //진동모터 ??
+            }
             naviTextView.append("f : " + navi.getFeatureNumber() + " dis : " + navi.getDistance() + " angle : " +
                     (int)navi.getDestinationAngle() + "\n");
         }else if(navi.isdSync() && !navi.issSync()){ //네비 시작 x, 목적지 o, 시작위치 o
@@ -192,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }else{
             gps2 = new TMapGpsManager(this);
-            gps2.setMinTime(1000*10);
+            gps2.setMinTime(1000);
             gps2.setMinDistance(5);
             gps2.setProvider(gps2.GPS_PROVIDER);
             gps2.OpenGps();
@@ -294,10 +297,14 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 
                     case GroupConstants.INTENTION_CHATLOG :
                         response.append("채팅 기록.\"");
+                        ChatLogFragment chatLogFragment = new ChatLogFragment();
+                        chatLogFragment.show(getFragmentManager(),"");
                         break;
 
                     case GroupConstants.INTENTION_MAP :
                         response.append("지도.\"");
+                        PathFragment pathFragment = new PathFragment();
+                        pathFragment.show(getFragmentManager(),"");
                         break;
                 }
 
