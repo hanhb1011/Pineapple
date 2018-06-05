@@ -3,24 +3,25 @@
 #include <Wire.h>
 #define address 0x1E
 
-int in1Pin=11,in2Pin=10,in3Pin=9,in4Pin=8;
-Stepper motor(200,in1Pin,in2Pin,in3Pin,in4Pin);
+int in1Pin=12,in2Pin=11,in3Pin=10,in4Pin=9;
+Stepper motor(32,in1Pin,in2Pin,in3Pin,in4Pin);
 const int motorPin = 7;
 int blueTx=2;   
 int blueRx=3;
 SoftwareSerial mySerial(blueTx, blueRx);  
 SoftwareSerial BTSerial(blueTx, blueRx);
-String myString="";   
+String myString="";
 byte buffer[1024]; 
 int bufferPosition; 
-
+int val;
+int init_angle=0;
 
 void setup(){
   pinMode(in1Pin,OUTPUT); pinMode(in2Pin,OUTPUT);
   pinMode(in3Pin,OUTPUT); pinMode(in4Pin,OUTPUT);
   BTSerial.begin(9600); 
   Serial.begin(9600);
-  motor.setSpeed(100);
+  motor.setSpeed(300);
   mySerial.begin(9600);
   bufferPosition = 0; 
   Wire.begin();
@@ -32,15 +33,15 @@ void setup(){
 }
 
 void dir_cor(int a){
-
-  if(a == 150){
-  motor.step( 2000); delay(2000);
-  }
-  
-  else if(a == 60){
-  motor.step(-2000); delay(2000);
-  }
-
+ int val = map(a,0,360,0,2048);
+ 
+ init_angle += a;
+ if(init_angle >= 180 ){
+    init_angle = - (180 - init_angle%180);
+ } 
+ 
+ motor.step(-val);
+ delay(2000);
 
 }
 
@@ -51,7 +52,7 @@ void wrong_vib(int b){
   analogWrite(7, 0);
   }
   
-  else if(b == 60){
+  else if(b == 900){
   analogWrite(7, 200);                     
   delay(1000);   
   analogWrite(7 , 0);
@@ -61,7 +62,6 @@ void wrong_vib(int b){
 void compass(){
   int x,y,z; //triple axis data
   double angle;
-  
   
   Wire.beginTransmission(address);
   Wire.write(0x03);
@@ -94,33 +94,53 @@ void compass(){
   
   Serial.println("Azimuth : "+String(bearing));
 
-  
+  /*
   BTSerial.print("Azimuth : ");
   BTSerial.println(bearing);
-
+*/
   angle = 0;
   bearing = 0;
 
   delay(500);
 }
 
+void init_motor(int c){
+
+  int val2 = map(init_angle,0,360,0,2048);
+   
+  if(c == 370)
+  {
+    motor.step( val2);
+  }
+
+  init_angle = 0;
+}
+
 void loop(){
+
 
    while(mySerial.available())  
   {
     int inChar = mySerial.read();
-    if (isDigit(inChar)){
+    if (isDigit(inChar) || inChar == '-'){
       myString += (char)inChar; 
     }
-
   }
-
+   
   compass();
   delay(500);
   wrong_vib(myString.toInt()); 
-  dir_cor(myString.toInt());
-
-   if(!myString.equals(""))  
+  
+  if (abs( myString.toInt() ) <= 180){
+    dir_cor(myString.toInt());
+   }
+   
+  else{
+  init_motor(myString.toInt());
+  }
+  
+  
+  if(!myString.equals(""))  
   {
     Serial.println("input value: "+myString); 
     
@@ -128,6 +148,3 @@ void loop(){
   }
 
 }
-
-
-
