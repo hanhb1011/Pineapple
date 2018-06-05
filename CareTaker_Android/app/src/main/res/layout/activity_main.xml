@@ -23,7 +23,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
-        android:text="메뉴"
         android:textSize="22sp"
         android:textColor="#000000"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -35,18 +34,20 @@
         android:id="@+id/first_btn"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_marginTop="15dp"
-        android:text="사용자 상태\n보기"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/man"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/menu_tv"
         app:layout_constraintRight_toLeftOf="@id/second_btn"/>
+
+
 
     <Button
         android:id="@+id/second_btn"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_marginTop="15dp"
-        android:text="음성메시지\n보내기"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/mic2"
         app:layout_constraintLeft_toRightOf="@id/first_btn"
         app:layout_constraintTop_toBottomOf="@id/menu_tv"
         app:layout_constraintRight_toLeftOf="@id/third_btn"
@@ -56,12 +57,43 @@
         android:id="@+id/third_btn"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_marginTop="15dp"
-        android:text="사용자 검색 기록"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/log"
         app:layout_constraintTop_toBottomOf="@id/menu_tv"
         app:layout_constraintLeft_toRightOf="@id/second_btn"
         app:layout_constraintRight_toRightOf="parent"/>
 
+
+    <TextView
+        android:id="@+id/first_btn_tv"
+        android:text="사용자 상태\n보기"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintTop_toBottomOf="@id/first_btn"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/second_btn_tv"
+        android:textAlignment="center"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/second_btn_tv"
+        android:text="음성메시지 \n보내기"
+        app:layout_constraintTop_toBottomOf="@id/second_btn"
+        app:layout_constraintLeft_toRightOf="@id/first_btn_tv"
+        app:layout_constraintRight_toLeftOf="@id/third_btn_tv"
+        android:textAlignment="center"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/third_btn_tv"
+        android:text="사용자 검색 기록\n조회"
+        app:layout_constraintTop_toBottomOf="@id/third_btn"
+        app:layout_constraintLeft_toRightOf="@id/second_btn_tv"
+        app:layout_constraintRight_toRightOf="parent"
+        android:textAlignment="center"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline_horizontal"

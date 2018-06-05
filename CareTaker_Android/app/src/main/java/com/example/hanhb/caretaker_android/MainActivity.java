@@ -21,7 +21,6 @@ public class MainActivity extends Activity {
     public static User user;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference userRef;
-    private TmapHelper tmapHelper;
 
     private Button firstButton, secondButton, thirdButton;
 
@@ -44,7 +43,6 @@ public class MainActivity extends Activity {
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         userRef = firebaseDatabase.getReference().child("user").child(key);
-        tmapHelper = new TmapHelper(this);
 
         //서버로부터 사용자의 정보를 주기적으로 불러온다.
         userRef.addValueEventListener(new ValueEventListener() {
