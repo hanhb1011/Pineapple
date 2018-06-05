@@ -55,28 +55,7 @@ public class MainActivity extends Activity {
                 if(user == null) {
                     return;
                 }
-                /*
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append("위도").append(user.getCurrentLatitude())
-                        .append("\n경도").append(user.getCurrentLongitude()).append("\n");
 
-                Map<String, RouteNavigation> map = user.getNavigationLog();
-                if(map != null) {
-                    stringBuilder.append("\n경로 안내 기록");
-                    for(RouteNavigation routeNavigation : map.values()){
-                        stringBuilder.append("\n경로 이름: ").append(routeNavigation.getDstName())
-                                .append("\n경로 주소: ").append(routeNavigation.getDstAddress());
-                    }
-                }
-
-                */
-
-                /*
-                //update ui
-                if(tmapHelper !=null && tempTextView !=null) {
-                    tmapHelper.getCurrentAddressAndUpdateUI(user.getCurrentLatitude(), user.getCurrentLongitude());
-                }
-                */
             }
 
             @Override

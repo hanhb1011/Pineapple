@@ -17,6 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
  * Created by hanhb on 2018-06-03.
  */
 
+@Deprecated
 public class TmapHelper {
 
     private TMapData tMapData;
