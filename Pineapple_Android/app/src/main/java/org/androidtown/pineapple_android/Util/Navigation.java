@@ -40,6 +40,9 @@ public class Navigation {
 
     private double distance = 0.0d;
 
+    private static boolean firstLocation=false;
+
+
 
 
 
@@ -51,6 +54,14 @@ public class Navigation {
 
     private double startX=0,startY=0,endX=0,endY=0,currentX=0,currentY=0,preX=0,preY=0;
     private double destinationAngle=0.0d;
+
+    public static boolean isFirstLocation() {
+        return firstLocation;
+    }
+
+    public static void setFirstLocation(boolean firstLocation) {
+        Navigation.firstLocation = firstLocation;
+    }
 
     public int getFeatureSize() {
         return featureSize;

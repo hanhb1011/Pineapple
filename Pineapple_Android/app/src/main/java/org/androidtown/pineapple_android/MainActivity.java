@@ -43,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     public void onLocationChange(Location location) {
         double lat = location.getLatitude();
         double lon = location.getLongitude();
+        navi.setFirstLocation(true);
+        firebaseHelper.updateCurrentLocation(lat,lon);
+
         navi.setPreX(navi.getCurrentX());
         navi.setPreY(navi.getCurrentY());
         navi.setCurrentX(lon);
@@ -52,8 +55,16 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                 int data = (int) navi.getDestinationAngle();
                 data = data << 4;
                 data = data | 1;
-                bluetoothHelper.sendData(data); //목적지 방위각 전송
+                String inputString = data + "";
+                byte[] byteArray = new byte[inputString.length()];
+                for(int i = 0; i < inputString.length(); i++){
+                    byteArray[i] = (byte) inputString.charAt(i);
+                }
+
+                bluetoothHelper.sendData(byteArray); //목적지 방위각 전송
+
             } catch (Exception e) {
+                Toast.makeText(MainActivity.this, "TYPE ERROR", Toast.LENGTH_SHORT).show();
             }
         }
 
