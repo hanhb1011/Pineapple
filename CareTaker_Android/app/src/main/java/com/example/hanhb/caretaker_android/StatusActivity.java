@@ -31,6 +31,7 @@ public class StatusActivity extends Activity {
     private TMapData tMapData;
     private TMapView tMapView;
     private TMapTapi tmaptapi;
+
     private MyHandler myHandler;
     private boolean doUpdate = true;
 
@@ -65,7 +66,6 @@ public class StatusActivity extends Activity {
         tmaptapi.setSKTMapAuthentication(tmapKey);
         tMapData = new TMapData();
         myHandler = new MyHandler(this);
-
 
 
     }

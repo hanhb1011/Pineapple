@@ -1,6 +1,7 @@
 package com.example.hanhb.caretaker_android;
 
 import android.content.Context;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,12 +11,23 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.skt.Tmap.TMapData;
+import com.skt.Tmap.TMapMarkerItem;
+import com.skt.Tmap.TMapPoint;
+import com.skt.Tmap.TMapTapi;
+import com.skt.Tmap.TMapView;
+
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 /*
     경로 탐색 기록을 RecyclerView로 보여주기 위한 Adapter
@@ -26,6 +38,8 @@ public class LogAdapter extends RecyclerView.Adapter {
     private Context context;
     private List<RouteNavigation> logList;
     private SimpleDateFormat fmt = new SimpleDateFormat("yyyy-mm-dd HH:mm");
+    private TMapData tMapData;
+    private TMapTapi tmaptapi;
 
     public LogAdapter(Context context) {
         this.context = context;
@@ -35,6 +49,14 @@ public class LogAdapter extends RecyclerView.Adapter {
 
         //TODO 시간 순으로 sort
         //logList.sort((a,b)->a.getTimestamp() - b.getTimestamp());
+
+
+        //Tmap 초기화
+        String tmapKey = context.getResources().getString(R.string.TMAP_API_KEY);
+        tmaptapi = new TMapTapi(context);
+        tmaptapi.setSKTMapAuthentication(tmapKey);
+        tMapData = new TMapData();
+
     }
 
     @NonNull
@@ -65,6 +87,10 @@ public class LogAdapter extends RecyclerView.Adapter {
         TextView addressTextView;
         TextView distanceTextView;
         LinearLayout tmapLayout;
+        boolean updateLayout = true;
+
+        TMapView tMapView;
+
 
         public LogViewHolder(View itemView) {
             super(itemView);
@@ -74,10 +100,13 @@ public class LogAdapter extends RecyclerView.Adapter {
             addressTextView = itemView.findViewById(R.id.dst_addr_tv);
             distanceTextView = itemView.findViewById(R.id.dst_dist_tv);
             tmapLayout = itemView.findViewById(R.id.tmap_layout_in_log);
+            tMapView = new TMapView(context);
+            tMapView.setSKTMapApiKey(context.getResources().getString(R.string.TMAP_API_KEY));
+
 
         }
 
-        public void bind(RouteNavigation routeNavigation) {
+        public void bind(final RouteNavigation routeNavigation) {
 
             // 파싱: timestamp 에서 String value
             Calendar cal = Calendar.getInstance();
@@ -94,7 +123,25 @@ public class LogAdapter extends RecyclerView.Adapter {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(context, "?!", Toast.LENGTH_SHORT).show();
+                    tmapLayout.setVisibility(View.VISIBLE);
+
+                    new Thread(){
+                        @Override
+                        public void run() {
+                            super.run();
+
+                            try {
+                                tMapView.setCenterPoint(routeNavigation.getSrcLongitude(), routeNavigation.getSrcLatitude());
+                                tmapLayout.addView(tMapView);
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+
+                    }.start();
+
                 }
             });
 
