@@ -21,7 +21,6 @@ public class MainActivity extends Activity {
     public static User user;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference userRef;
-
     private Button firstButton, secondButton, thirdButton;
 
     @Override

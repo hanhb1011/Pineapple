@@ -1,9 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/dst_name_tv"
+            android:textSize="22sp"
+            android:layout_margin="10dp"
+            android:textStyle="bold"
+            tools:text="제목제목제목"
+            android:maxLines="2"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/time_tv"
+            android:textSize="17sp"
+            tools:text="2018-06-06 18:55"
+            android:layout_margin="5dp"
+            app:layout_constraintTop_toBottomOf="@id/dst_name_tv"
+            app:layout_constraintRight_toRightOf="parent"
+            android:maxLines="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/dst_addr_tv"
+            android:textSize="20sp"
+            tools:text="주소"
+            android:layout_margin="5dp"
+            android:maxLines="2"
+            app:layout_constraintTop_toBottomOf="@id/time_tv"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/dst_dist_tv"
+            android:textSize="20sp"
+            tools:text="거리: 100m"
+            android:layout_margin="5dp"
+            android:maxLines="2"
+            app:layout_constraintTop_toBottomOf="@id/dst_addr_tv"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/tmap_layout_in_log"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/dst_dist_tv"
+            android:layout_width="match_parent"
+            android:layout_height="200dp" />
 
 
+    </android.support.constraint.ConstraintLayout>
 
-</android.support.constraint.ConstraintLayout>
+
+</android.support.v7.widget.CardView>

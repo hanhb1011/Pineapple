@@ -1,5 +1,7 @@
 package com.example.hanhb.caretaker_android;
 
+import com.example.hanhb.caretaker_android.RouteNavigation;
+
 import java.util.HashMap;
 
 /**
@@ -11,10 +13,19 @@ public class User {
     private String uid;
     private double currentLatitude;
     private double currentLongitude;
+    private String messageToBlind;
     private HashMap<String, RouteNavigation> navigationLog;
 
-    public User(){
+    public User (){
 
+    }
+
+    public String getMessageToBlind() {
+        return messageToBlind;
+    }
+
+    public void setMessageToBlind(String messageToBlind) {
+        this.messageToBlind = messageToBlind;
     }
 
     public User(String uid) {
@@ -52,4 +63,5 @@ public class User {
     public void setNavigationLog(HashMap<String, RouteNavigation> navigationLog) {
         this.navigationLog = navigationLog;
     }
+
 }

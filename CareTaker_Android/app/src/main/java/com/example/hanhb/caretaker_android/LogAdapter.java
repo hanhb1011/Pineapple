@@ -21,6 +21,9 @@ public class LogAdapter extends RecyclerView.Adapter {
         this.context = context;
     }
 
+
+
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -51,6 +54,8 @@ public class LogAdapter extends RecyclerView.Adapter {
         }
 
         public void bind(RouteNavigation routeNavigation) {
+
+
 
 
 
