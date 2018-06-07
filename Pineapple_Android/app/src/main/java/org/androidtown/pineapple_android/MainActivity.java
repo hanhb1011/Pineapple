@@ -318,6 +318,11 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                         PathFragment pathFragment = new PathFragment();
                         pathFragment.show(getFragmentManager(),"");
                         break;
+
+                    case GroupConstants.INTENTION_SEND_MESSAGE :
+                        response.append(resultPair.second+". 라고 전송했습니다.\"");
+                        firebaseHelper.sendMessageToCareTaker(resultPair.second);
+                        break;
                 }
 
 

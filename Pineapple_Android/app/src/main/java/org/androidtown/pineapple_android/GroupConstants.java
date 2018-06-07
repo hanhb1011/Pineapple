@@ -24,6 +24,7 @@ public class GroupConstants {
     public static final int INTENTION_INVALID = 1003;
     public static final int INTENTION_CHATLOG = 1004;
     public static final int INTENTION_MAP = 1005;
+    public static final int INTENTION_SEND_MESSAGE = 1006;
 
     //Message Type
     public static final int MY_MESSAGE = 1000;

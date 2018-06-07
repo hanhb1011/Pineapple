@@ -259,4 +259,14 @@ public class FirebaseHelper {
 
     }
 
+
+    public void sendMessageToCareTaker(String message) {
+        if(MainActivity.user == null){
+            return;
+        }
+
+        VoiceMessage voiceMessage = new VoiceMessage(message);
+        userRef.child(MainActivity.user.getUid()).child("messageToCareTaker").push().setValue(voiceMessage);
+
+    }
 }

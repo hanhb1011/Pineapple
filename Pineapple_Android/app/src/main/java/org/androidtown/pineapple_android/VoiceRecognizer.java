@@ -89,6 +89,9 @@ public class VoiceRecognizer {
         List<String> CANCELLATION_KEYWORDS = Arrays.asList("중단", "그만", "중지", "취소");
         List<String> CHATLOG_KEYWORDS = Arrays.asList("기록","채팅","로그");
         List<String> MAP_KEYWORDS = Arrays.asList("맵", "지도");
+        List<String> MESSAGE_START_KEYWORDS = Arrays.asList("보호자", "보호자에게","보호자한테");
+        List<String> MESSAGE_END_KEYWORDS = Arrays.asList("해","줘","말해", "보내", "라고해", "전송해", "해줘", "해주세요", "보내줘","보내주세요",
+                "말해줘", "말해주세요", "말해요", "보내요");
 
         //문장을 단어별로 분리시킨다 -> String[]
         String[] words = sentence.split(" ");
@@ -138,7 +141,6 @@ public class VoiceRecognizer {
         for(String keyword : CHATLOG_KEYWORDS) {
             for(String word : words) {
                 if(word.contains(keyword)) {
-                    //중단이라 판단
                     return new android.util.Pair<>(GroupConstants.INTENTION_CHATLOG,  null);
                 }
             }
@@ -150,6 +152,17 @@ public class VoiceRecognizer {
                 if(word.contains(keyword)) {
                     //중단이라 판단
                     return new android.util.Pair<>(GroupConstants.INTENTION_MAP,  null);
+                }
+            }
+        }
+
+        //보호자에게 메시지 전송
+        if(words.length > 0) {
+            for (String startKeyword : MESSAGE_START_KEYWORDS) {
+                for(String endKeyword : MESSAGE_END_KEYWORDS) {
+                    if (words[0].contains(startKeyword) && words[words.length - 1].contains(endKeyword)) {
+                        return new android.util.Pair<>(GroupConstants.INTENTION_SEND_MESSAGE, sentence);
+                    }
                 }
             }
         }
