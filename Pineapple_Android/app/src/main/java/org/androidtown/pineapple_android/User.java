@@ -11,19 +11,12 @@ public class User {
     private String uid;
     private double currentLatitude;
     private double currentLongitude;
-    private String messageToBlind;
+    private HashMap<String, VoiceMessage> messageToBlind;
+    private HashMap<String, VoiceMessage> messageToCareTaker;
     private HashMap<String, RouteNavigation> navigationLog;
 
     public User (){
 
-    }
-
-    public String getMessageToBlind() {
-        return messageToBlind;
-    }
-
-    public void setMessageToBlind(String messageToBlind) {
-        this.messageToBlind = messageToBlind;
     }
 
     public User(String uid) {
@@ -54,6 +47,22 @@ public class User {
         this.currentLongitude = currentLongitude;
     }
 
+    public HashMap<String, VoiceMessage> getMessageToBlind() {
+        return messageToBlind;
+    }
+
+    public void setMessageToBlind(HashMap<String, VoiceMessage> messageToBlind) {
+        this.messageToBlind = messageToBlind;
+    }
+
+    public HashMap<String, VoiceMessage> getMessageToCareTaker() {
+        return messageToCareTaker;
+    }
+
+    public void setMessageToCareTaker(HashMap<String, VoiceMessage> messageToCareTaker) {
+        this.messageToCareTaker = messageToCareTaker;
+    }
+
     public HashMap<String, RouteNavigation> getNavigationLog() {
         return navigationLog;
     }
@@ -61,5 +70,4 @@ public class User {
     public void setNavigationLog(HashMap<String, RouteNavigation> navigationLog) {
         this.navigationLog = navigationLog;
     }
-
 }
