@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     public static ArrayList<Message> messageList;
     public static User user;
     public static FirebaseHelper firebaseHelper;
-
+    public static boolean speech = true;
 
     TMapGpsManager gps2=null;
 
@@ -238,15 +238,6 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     @Override
     protected void onStop() {
         super.onStop();
-
-        
-
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
         //tts 중지 (Clear the buffer)
         if(tts != null){
             tts.stop();
@@ -254,6 +245,17 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
             tts = null;
         }
 
+        speech = false;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(tts == null){
+            tts = getTTSInstanceWithNewMessages();
+        }
+
+        speech = true;
     }
 
     @Override
@@ -369,7 +371,9 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                     //minimum SDK version is 21
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         String utteranceId=this.hashCode() + "";
-                        tts.speak("안녕하세요. 목적지를 말씀해주세요.", TextToSpeech.QUEUE_FLUSH, null, utteranceId);
+                        tts.speak("안녕하세요. 목적지를 말씀해주세요.", TextToSpeech.QUEUE_ADD, null, utteranceId);
+
+
                     }
 
                 } else {
@@ -378,7 +382,6 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
             }
         });
     }
-
 
 
     public void loadAnswer(double endX, double endY) {
@@ -464,4 +467,26 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
             return true;
     }
 
+    public TextToSpeech getTTSInstanceWithNewMessages() {
+        return new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status!=TextToSpeech.ERROR){
+                    tts.setLanguage(Locale.KOREAN);
+                    //minimum SDK version is 21
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        String utteranceId=this.hashCode() + "";
+                        tts.speak("안녕하세요. 목적지를 말씀해주세요.", TextToSpeech.QUEUE_ADD, null, utteranceId);
+
+                        if(firebaseHelper !=null) {
+                            firebaseHelper.getMessageAndSpeakAtOnce();
+                        }
+                    }
+
+                } else {
+                    Toast.makeText(MainActivity.this, "TTS Init Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
 }

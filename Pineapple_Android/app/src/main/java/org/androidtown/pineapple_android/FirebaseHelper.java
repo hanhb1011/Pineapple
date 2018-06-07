@@ -195,9 +195,45 @@ public class FirebaseHelper {
         userRef.child(MainActivity.user.getUid()).child("messageToBlind").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                if(MainActivity.speech) {
+                    if (dataSnapshot.getValue() != null) {
+                        ((MainActivity) context).speak("보호자로부터 새로운 메시지가 도착했습니다.");
 
-                if(dataSnapshot.getValue() != null ) {
-                    ((MainActivity)context).speak("보호자로부터 새로운 메시지가 도착했습니다.");
+                        final Iterable<DataSnapshot> snapshots = dataSnapshot.getChildren();
+                        userRef.child(MainActivity.user.getUid()).child("messageToBlind").removeValue()
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        for (DataSnapshot data : snapshots) {
+                                            String s = data.child("message").getValue(String.class);
+                                            ((MainActivity) context).speak(s);
+                                        }
+                                    }
+                                });
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+    }
+
+    public void getMessageAndSpeakAtOnce(){
+        if(MainActivity.user == null){
+            return;
+        }
+
+        userRef.child(MainActivity.user.getUid()).child("messageToBlind").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    ((MainActivity) context).speak("보호자로부터 새로운 메시지가 도착했습니다.");
 
                     final Iterable<DataSnapshot> snapshots = dataSnapshot.getChildren();
                     userRef.child(MainActivity.user.getUid()).child("messageToBlind").removeValue()
@@ -205,8 +241,8 @@ public class FirebaseHelper {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     for (DataSnapshot data : snapshots) {
-                                        String s = data.child("message").getValue(String.class);
-                                        ((MainActivity) context).speak(s);
+                                        String message = data.child("message").getValue(String.class);
+                                        ((MainActivity) context).speak(message);
                                     }
                                 }
                             });
@@ -220,7 +256,6 @@ public class FirebaseHelper {
 
             }
         });
-
 
     }
 
