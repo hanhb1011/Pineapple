@@ -91,7 +91,6 @@ public class LogAdapter extends RecyclerView.Adapter {
 
         TMapView tMapView;
 
-
         public LogViewHolder(View itemView) {
             super(itemView);
 
