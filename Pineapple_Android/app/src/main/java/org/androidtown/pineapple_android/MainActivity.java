@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         navi.setPreY(navi.getCurrentY());
         navi.setCurrentX(lon);
         navi.setCurrentY(lat);
+
         if(navi.calcAngle()) {
             try {
                 int data = (int) navi.getDestinationAngle();
@@ -162,6 +163,10 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     }
 
     private void init() {
+
+        //TextToSpeech 초기화
+        tts = getTTSInstance();
+
         //파이어베이스 초기화
         firebaseHelper = new FirebaseHelper(this);
 
@@ -180,9 +185,6 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 
         //message List 초기화
         messageList = new ArrayList<>();
-
-        //TextToSpeech 초기화
-        tts = getTTSInstance();
 
         //Navigation 초기화
         navi = Navigation.getInstance();
@@ -231,6 +233,14 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                 }
             }
         });
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        
+
     }
 
     @Override
@@ -341,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             String utteranceId = String.valueOf(this.hashCode());
             try {
-                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId);
+                tts.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId);
             } catch (Exception e){
                 e.printStackTrace();
             }
