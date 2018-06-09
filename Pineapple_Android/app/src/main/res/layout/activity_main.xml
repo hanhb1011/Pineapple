@@ -8,6 +8,7 @@
     android:background="@drawable/bg_gradient"
     tools:context="org.androidtown.pineapple_android.MainActivity">
     <EditText
+        android:visibility="gone"
         android:id="@+id/test_et"
         android:maxLines="1"
         android:maxWidth="100dp"
@@ -17,6 +18,7 @@
         android:layout_width="100dp"
         android:layout_height="wrap_content" />
     <Button
+        android:visibility="gone"
         android:id="@+id/test_btn"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toRightOf="@id/test_et"
@@ -26,6 +28,7 @@
         android:layout_height="wrap_content" />
 
     <Button
+        android:visibility="gone"
         android:id="@+id/activity_btn"
         app:layout_constraintTop_toBottomOf="@id/test_btn"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -36,6 +39,7 @@
         android:layout_height="wrap_content" />
 
     <Button
+        android:visibility="gone"
         android:id="@+id/path_btn"
         app:layout_constraintTop_toTopOf="@+id/test_btn"
         app:layout_constraintLeft_toRightOf="@+id/activity_btn"
@@ -132,7 +136,6 @@
             android:id="@+id/navi"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:text="abcde"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </ScrollView>

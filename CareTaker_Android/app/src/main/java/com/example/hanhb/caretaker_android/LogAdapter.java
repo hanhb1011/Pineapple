@@ -37,7 +37,7 @@ public class LogAdapter extends RecyclerView.Adapter {
 
     private Context context;
     private List<RouteNavigation> logList;
-    private SimpleDateFormat fmt = new SimpleDateFormat("yyyy-mm-dd HH:mm");
+    private SimpleDateFormat fmt = new SimpleDateFormat("yyyy-mm-dd HH:MM");
     private TMapData tMapData;
     private TMapTapi tmaptapi;
 
@@ -45,7 +45,8 @@ public class LogAdapter extends RecyclerView.Adapter {
         this.context = context;
         logList = new ArrayList<>();
         //사용하기 쉽도록 HashMap에서 List로 변환한다.
-        logList.addAll(MainActivity.user.getNavigationLog().values());
+        if(MainActivity.user.getNavigationLog() !=null)
+            logList.addAll(MainActivity.user.getNavigationLog().values());
 
         //TODO 시간 순으로 sort
         //logList.sort((a,b)->a.getTimestamp() - b.getTimestamp());
