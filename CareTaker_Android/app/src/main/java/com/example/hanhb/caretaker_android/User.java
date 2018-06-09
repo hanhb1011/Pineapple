@@ -8,6 +8,7 @@ import java.util.HashMap;
  * Created by hanhb on 2018-06-01.
  */
 
+//시각장애인 모델
 public class User {
 
     private String uid;

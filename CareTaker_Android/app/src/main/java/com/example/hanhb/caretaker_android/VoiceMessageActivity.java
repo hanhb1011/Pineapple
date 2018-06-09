@@ -8,6 +8,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+/*
+    VoiceMessageActivity
+    시각장애인이 보낸 음성메시지를 리스트 형태로 출력한다.
+ */
 public class VoiceMessageActivity extends Activity {
 
     RecyclerView recyclerView;
@@ -40,7 +44,7 @@ public class VoiceMessageActivity extends Activity {
             e.printStackTrace();
         }
 
-        backButton = findViewById(R.id.back_btn_in_log);
+        backButton = findViewById(R.id.back_btn_in_voice_message);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -10,7 +10,7 @@
         android:id="@+id/back_btn_in_voice_message"
         android:background="@drawable/back_button"
         android:layout_marginTop="15dp"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="10dp"
         android:layout_width="35dp"
         android:layout_height="35dp"
         app:layout_constraintLeft_toLeftOf="parent"

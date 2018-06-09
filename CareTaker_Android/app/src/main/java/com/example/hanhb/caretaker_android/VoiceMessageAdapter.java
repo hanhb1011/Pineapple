@@ -16,11 +16,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+
+/*
+    시각장애인이 보낸 음성메시지 리스트를 띄우기 위한 어댑터
+*/
 public class VoiceMessageAdapter extends RecyclerView.Adapter {
 
     private Context context;
     private List<VoiceMessage> voiceMessageList;
-    private SimpleDateFormat fmt = new SimpleDateFormat("yyyy-mm-dd HH:MM");
+    private SimpleDateFormat fmt = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 
     public VoiceMessageAdapter(Context context){
         this.context = context;
@@ -35,7 +39,7 @@ public class VoiceMessageAdapter extends RecyclerView.Adapter {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
-        view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_log, parent, false);
+        view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_voice_message, parent, false);
         return new VoiceMessageViewHolder(view);
     }
 
@@ -68,7 +72,8 @@ public class VoiceMessageAdapter extends RecyclerView.Adapter {
             cal.setTimeInMillis(voiceMessage.getTimestamp());
             timeTextView.setText(fmt.format(cal.getTime()));
 
-            messageTextView.setText(voiceMessage.getMessage());
+            String content = "\""+voiceMessage.getMessage()+"\"";
+            messageTextView.setText(content);
 
         }
     }

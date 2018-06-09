@@ -1,6 +1,8 @@
 package org.androidtown.pineapple_android;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * Created by hanhb on 2018-06-01.
@@ -16,6 +18,8 @@ public class RouteNavigation {
     private String dstName;
     private String dstAddress;
     private double dstDistance;
+    private List<Node> nodes;
+
 
     public RouteNavigation() {
 
@@ -94,5 +98,13 @@ public class RouteNavigation {
 
     public void setDstDistance(double dstDistance) {
         this.dstDistance = dstDistance;
+    }
+
+    public List<Node> getNodes() {
+        return nodes;
+    }
+
+    public void setNodes(List<Node> nodes) {
+        this.nodes = nodes;
     }
 }

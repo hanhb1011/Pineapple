@@ -30,11 +30,6 @@ public class MyHandler extends Handler {
                 ((StatusActivity)context).statusTextView.setText(status);
                 break;
 
-            case 2 :
-
-
-                break;
-
         }
 
 

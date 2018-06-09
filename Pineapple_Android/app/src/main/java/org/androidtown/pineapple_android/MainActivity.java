@@ -288,19 +288,16 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 
                 switch (resultPair.first) {
                     case GroupConstants.INTENTION_DESTINATION :
-
                         response.append(resultPair.second);
                         response.append(" 안내를 시작합니다.\"");
                         tmap.getPOIItem(resultPair.second);
 
-                        //TODO 안내
-
                         break;
                     case GroupConstants.INTENTION_CANCELLATION :
                         response.append("안내를 중단합니다.\"");
-
-                        //TODO 안내 중단
-
+                        if(Navigation.getInstance().isStarted()) {
+                            Navigation.getInstance().terminate();
+                        }
                         break;
 
                     case GroupConstants.INTENTION_INVALID :
@@ -418,6 +415,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                             Log.d("mWay", "null");
                         else {
                             navi.startNavigation(mWay);
+
                             navi.stateCheck(navi.getStartY(), navi.getStartX());
                             naviTextView.append("fs : " + navi.getFeatureSize() + "\n");
                             naviTextView.append("f : " + navi.getFeatureNumber() + " dis : " + navi.getDistance() + " angle : " +

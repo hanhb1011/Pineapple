@@ -49,21 +49,15 @@
         <TextView
             android:id="@+id/dst_dist_tv"
             android:textSize="17sp"
-            tools:text="거리: 100m"
+            tools:text="목적지까지 거리: 100m"
             android:layout_margin="5dp"
             android:maxLines="2"
             app:layout_constraintTop_toBottomOf="@id/dst_addr_tv"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-
-        <LinearLayout
-            android:id="@+id/tmap_layout_in_log"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/dst_dist_tv"
-            android:layout_width="match_parent"
-            android:layout_height="200dp" />
 
 
     </android.support.constraint.ConstraintLayout>

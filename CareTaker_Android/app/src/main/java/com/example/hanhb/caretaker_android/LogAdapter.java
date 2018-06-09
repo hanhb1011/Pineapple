@@ -37,7 +37,7 @@ public class LogAdapter extends RecyclerView.Adapter {
 
     private Context context;
     private List<RouteNavigation> logList;
-    private SimpleDateFormat fmt = new SimpleDateFormat("yyyy-mm-dd HH:MM");
+    private SimpleDateFormat fmt = new SimpleDateFormat("yyyy/MM/dd HH:mm");
     private TMapData tMapData;
     private TMapTapi tmaptapi;
 
@@ -87,8 +87,6 @@ public class LogAdapter extends RecyclerView.Adapter {
         TextView timeTextView;
         TextView addressTextView;
         TextView distanceTextView;
-        LinearLayout tmapLayout;
-        boolean updateLayout = true;
 
         TMapView tMapView;
 
@@ -99,10 +97,6 @@ public class LogAdapter extends RecyclerView.Adapter {
             timeTextView = itemView.findViewById(R.id.time_tv);
             addressTextView = itemView.findViewById(R.id.dst_addr_tv);
             distanceTextView = itemView.findViewById(R.id.dst_dist_tv);
-            tmapLayout = itemView.findViewById(R.id.tmap_layout_in_log);
-            tMapView = new TMapView(context);
-            tMapView.setSKTMapApiKey(context.getResources().getString(R.string.TMAP_API_KEY));
-
 
         }
 
@@ -118,32 +112,6 @@ public class LogAdapter extends RecyclerView.Adapter {
 
             StringBuilder distance = new StringBuilder(String.valueOf(routeNavigation.getDstDistance())).append("M");
             distanceTextView.setText(distance);
-
-            //뷰 클릭 시 상세경로를 지도로 보여준다.
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    tmapLayout.setVisibility(View.VISIBLE);
-
-                    new Thread(){
-                        @Override
-                        public void run() {
-                            super.run();
-
-                            try {
-                                tMapView.setCenterPoint(routeNavigation.getSrcLongitude(), routeNavigation.getSrcLatitude());
-                                tmapLayout.addView(tMapView);
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-
-                    }.start();
-
-                }
-            });
 
         }
 
