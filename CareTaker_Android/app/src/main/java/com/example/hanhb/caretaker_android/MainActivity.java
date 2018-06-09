@@ -35,7 +35,7 @@ public class MainActivity extends Activity {
     public static User user;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference userRef;
-    private Button firstButton, secondButton, thirdButton;
+    private Button firstButton, secondButton, thirdButton, fourthButton;
     public TextToSpeech tts;
     public static final int REQ_CODE_SPEECH_INPUT = 1000;
 
@@ -93,6 +93,7 @@ public class MainActivity extends Activity {
         firstButton = findViewById(R.id.first_btn);
         secondButton = findViewById(R.id.second_btn);
         thirdButton = findViewById(R.id.third_btn);
+        fourthButton = findViewById(R.id.fourth_btn);
 
 
         //사용자 상태 보기
@@ -128,7 +129,17 @@ public class MainActivity extends Activity {
                 Intent intent = new Intent(MainActivity.this, LogActivity.class);
                 startActivity(intent);
 
+            }
+        });
 
+
+        //시각장애인이 보낸 음성메시지 확인
+        fourthButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, VoiceMessageActivity.class);
+                startActivity(intent);
+                
             }
         });
     }
