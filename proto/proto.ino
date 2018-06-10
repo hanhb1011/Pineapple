@@ -15,10 +15,12 @@ byte buffer[1024];
 int bufferPosition; 
 int val;
 int init_angle=0;
+int buttonpin = 5;
 
 void setup(){
   pinMode(in1Pin,OUTPUT); pinMode(in2Pin,OUTPUT);
   pinMode(in3Pin,OUTPUT); pinMode(in4Pin,OUTPUT);
+  pinMode(buttonpin,INPUT);
   BTSerial.begin(9600); 
   Serial.begin(9600);
   motor.setSpeed(300);
@@ -117,7 +119,12 @@ void init_motor(int c){
 }
 
 void loop(){
-
+  
+  int buttoninput = digitalRead(buttonpin);
+  
+  if (buttoninput == 1){
+    BTSerial.print("button"); // 안드로이드 상 음성인식 작동 버튼 - 버튼을 1초 정도 꾹 누르면 "button" 이라는 문자가 안드로이드에 전달되며, 음성 인식 작동 
+  } 
 
    while(mySerial.available())  
   {
