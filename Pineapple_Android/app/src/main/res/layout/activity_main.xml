@@ -7,8 +7,28 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient"
     tools:context="org.androidtown.pineapple_android.MainActivity">
-    <EditText
+
+    <ImageView
+        android:id="@+id/gps_iv"
+        android:background="@drawable/gps_icon"
+        android:layout_margin="5dp"
         android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
+    <ImageView
+        android:id="@+id/bluetooth_iv"
+        android:background="@drawable/bluetooth_icon"
+        android:layout_margin="5dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/gps_iv"
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
+
+
+    <EditText
         android:id="@+id/test_et"
         android:maxLines="1"
         android:maxWidth="100dp"
@@ -17,8 +37,8 @@
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_width="100dp"
         android:layout_height="wrap_content" />
+
     <Button
-        android:visibility="gone"
         android:id="@+id/test_btn"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toRightOf="@id/test_et"
@@ -51,7 +71,6 @@
 
     <TextView
         app:layout_constraintTop_toBottomOf="@id/test_et"
-
         android:id="@+id/speech_tv"
         android:textSize="30sp"
         android:textColor="#525252"

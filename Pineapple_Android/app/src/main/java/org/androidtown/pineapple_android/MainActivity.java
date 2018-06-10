@@ -16,6 +16,7 @@ import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,6 +45,12 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         double lat = location.getLatitude();
         double lon = location.getLongitude();
         navi.setFirstLocation(true);
+
+        //GPS가 활성화되면 GPS이미지뷰를 Visible로 바꾸기
+        if(gpsImageView != null) {
+            gpsImageView.setVisibility(View.VISIBLE);
+        }
+
         firebaseHelper.updateCurrentLocation(lat,lon);
 
         navi.setPreX(navi.getCurrentX());
@@ -96,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     public static User user;
     public static FirebaseHelper firebaseHelper;
     public static boolean speech = true;
+    public static ImageView gpsImageView;
+    public static ImageView bluetoothImageView;
 
     TMapGpsManager gps2=null;
 
@@ -109,8 +118,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initView();
         init();
-        bindView();
         setView();
         testInit();//테스트
     }
@@ -208,12 +217,14 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 
 
     //뷰 바인딩
-    private void bindView() {
+    private void initView() {
         micImageView = findViewById(R.id.mic_iv);
         speechTextView = findViewById(R.id.speech_tv);
         responseTextView = findViewById(R.id.response_tv);
         testTextView = findViewById(R.id.test_tv);
         naviTextView = findViewById(R.id.navi);
+        gpsImageView = findViewById(R.id.gps_iv);
+        bluetoothImageView = findViewById(R.id.bluetooth_iv);
     }
 
     //뷰 초기화
@@ -221,18 +232,24 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 
         getSupportActionBar().hide(); //액션바 숨김
 
+
+        //마이크 이미지뷰를 클릭했을 때
         micImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //인터넷 연결을 확인하고, 연결이 되어있으면 서비스 실행
-                if(voiceRecognizer.isConnectedToInternet()) {
-                    voiceRecognizer.inputSpeech(); //음성 입력을 받는다.
-                } else {
-                    //연결이 되어있지 않으면 토스트 메시지 출력
-                    Toast.makeText(MainActivity.this, R.string.internet_connection_failed, Toast.LENGTH_SHORT).show();
-                }
+                inputSpeechProcess(); //음성입력을 받는다.
             }
         });
+    }
+
+    public void inputSpeechProcess() {
+        //인터넷 연결을 확인하고, 연결이 되어있으면 서비스 실행
+        if(voiceRecognizer.isConnectedToInternet()) {
+            voiceRecognizer.inputSpeech(); //음성 입력을 받는다.
+        } else {
+            //연결이 되어있지 않으면 토스트 메시지 출력
+            Toast.makeText(MainActivity.this, R.string.internet_connection_failed, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -265,6 +282,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         switch (requestCode) {
             //음성인식이 완료되었을 때
             case REQ_CODE_SPEECH_INPUT :
+                VoiceRecognizer.isAvailable = true; //음성입력이 다시 가능하게 하도록 set
+
                 //check validity
                 if(resultCode!=RESULT_OK || data == null)
                     return;

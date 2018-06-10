@@ -26,6 +26,7 @@ import java.util.Locale;
 public class VoiceRecognizer {
 
     private Context context;
+    public static boolean isAvailable = true; // 실행 중인 음성 입력 액티비티가 없을 때만 사용 가능하도록
 
     public VoiceRecognizer(Context context) {
         this.context = context;
@@ -53,15 +54,22 @@ public class VoiceRecognizer {
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, context.getString(R.string.speech_prompt));
 
         try {
-            ((Activity)context).startActivityForResult(intent, GroupConstants.REQ_CODE_SPEECH_INPUT);
+            if(isAvailable) {
+                isAvailable = false;
+                //Critical section
+                ((Activity) context).startActivityForResult(intent, GroupConstants.REQ_CODE_SPEECH_INPUT);
 
+            }
         } catch (ActivityNotFoundException a) {
-
+            isAvailable = true;
             //음성인식 지원을 하지 않는 경우, 구글 서비스 업데이트를 유도한다
             String appPackageName = context.getResources().getString(R.string.url_google_services);
             Toast.makeText(context, context.getString(R.string.speech_not_supported), Toast.LENGTH_SHORT).show();
             Intent browserIntent = new Intent(Intent.ACTION_VIEW,   Uri.parse("https://market.android.com/details?id="+appPackageName));
             context.startActivity(browserIntent);
+
+        } catch (Exception e) {
+            isAvailable = true;
         }
 
     }

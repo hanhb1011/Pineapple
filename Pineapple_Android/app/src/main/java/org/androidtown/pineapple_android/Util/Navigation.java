@@ -51,7 +51,6 @@ public class Navigation {
 
 
 
-
     private TMapPolyLine[] tMapPolyLines;
 
     private final int type_point=1;
@@ -259,12 +258,13 @@ public class Navigation {
                 for(Object o : f.getGeometry().getCoordinates()){
                     List<Double> l = (List<Double>)o;
                     alTMapPoint.add(new TMapPoint(l.get(1),l.get(0)));
-                    nodes.add(new Node(l.get(1),l.get(0)));
+                    nodes.add(new Node(l.get(1),l.get(0))); //노드정보 추가
                 }
             }
 
         }
 
+        //완성된 노드 리스트와 함께 서버에 경로정보 저장
         routeNavigation.setNodes(nodes);
         if(MainActivity.firebaseHelper != null) {
             MainActivity.firebaseHelper.addRouteNavigation(routeNavigation);
