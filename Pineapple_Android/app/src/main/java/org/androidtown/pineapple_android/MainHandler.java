@@ -34,10 +34,10 @@ public class MainHandler extends Handler {
                 TMapPOIItem item = (TMapPOIItem) msg.obj;
 
                 str.append("장소명 : ").append(item.getPOIName()).append("\n")
-                        .append("주소 : ").append(item.getPOIAddress()).append("\n")
-                        .append("위도 : ").append(item.getPOIPoint().getLatitude()).append("\n")
-                        .append("경도 : ").append(item.getPOIPoint().getLongitude()).append("\n")
+                        .append("주소 : ").append(item.getPOIAddress().replace("null","")).append("\n")
                         .append("거리 : ").append(item.getDistance(((MainActivity)context).tmap.getCurrentTMapPoint())).append("\n");
+
+                MainActivity.navi.terminate();
 
                 ((MainActivity)context).testTextView.setText(str);
                 MainActivity.navi.setdSync(true);

@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.skt.Tmap.TMapData;
 import com.skt.Tmap.TMapMarkerItem;
 import com.skt.Tmap.TMapPoint;
+import com.skt.Tmap.TMapPolyLine;
 import com.skt.Tmap.TMapTapi;
 import com.skt.Tmap.TMapView;
 
@@ -88,8 +89,6 @@ public class LogAdapter extends RecyclerView.Adapter {
         TextView addressTextView;
         TextView distanceTextView;
 
-        TMapView tMapView;
-
         public LogViewHolder(View itemView) {
             super(itemView);
 
@@ -108,11 +107,46 @@ public class LogAdapter extends RecyclerView.Adapter {
             timeTextView.setText(fmt.format(cal.getTime()));
 
             nameTextView.setText(routeNavigation.getDstName());
-            addressTextView.setText(routeNavigation.getDstAddress());
+            String correctedAddress = routeNavigation.getDstAddress().replace("null", "");
+            addressTextView.setText(correctedAddress);
 
-            StringBuilder distance = new StringBuilder(String.valueOf(routeNavigation.getDstDistance())).append("M");
-            distanceTextView.setText(distance);
+            //거리 표시
+            try {
+                StringBuilder distance = new StringBuilder(String.format("%.2f",routeNavigation.getDstDistance())).append(" m");
+                distanceTextView.setText(distance);
+            } catch (Exception e){}
 
+
+            //클릭할 경우 경로 그리기
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    List <Node> nodes = routeNavigation.getNodes();
+                    TMapView tMapView = LogActivity.tMapView;
+                    tMapView.setCenterPoint(routeNavigation.getSrcLongitude(),routeNavigation.getSrcLatitude(),true); //지도 중심을 출발지로 정한다.
+
+                    if(nodes == null || tMapView ==null || nodes.size() < 1){
+                        Toast.makeText(context, "경로 정보가 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
+                        return; //경로 정보가 없거나 TMap view가 존재하지 않을 경우 리턴
+                    }
+
+                    //경로 그리기 : 노드 List로부터 PolyLine을 생성하고 Tmap에 적용시킨다.
+                    tMapView.removeAllTMapPolyLine();
+                    TMapPoint prevPoint = new TMapPoint(nodes.get(0).getLatitude(), nodes.get(0).getLongitude());
+
+                    for(int i=1; i<nodes.size(); i++) {
+                        TMapPoint currentPoint = new TMapPoint(nodes.get(i).getLatitude(), nodes.get(i).getLongitude());
+                        TMapPolyLine tMapPolyLine = new TMapPolyLine();
+                        tMapPolyLine.addLinePoint(prevPoint);
+                        tMapPolyLine.addLinePoint(currentPoint);
+                        tMapView.addTMapPolyLine(tMapPolyLine.toString(), tMapPolyLine);
+
+                        //마지막엔 prev <- current
+                        prevPoint = currentPoint;
+                    }
+
+                }
+            });
         }
 
     }

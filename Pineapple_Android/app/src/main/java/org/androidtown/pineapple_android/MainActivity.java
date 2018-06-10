@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         //GPS가 활성화되면 GPS이미지뷰를 Visible로 바꾸기
         if(gpsImageView != null) {
             gpsImageView.setVisibility(View.VISIBLE);
+
         }
 
         firebaseHelper.updateCurrentLocation(lat,lon);
@@ -307,10 +308,14 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 
                 switch (resultPair.first) {
                     case GroupConstants.INTENTION_DESTINATION :
-                        response.append(resultPair.second);
-                        response.append(" 안내를 시작합니다.\"");
-                        tmap.getPOIItem(resultPair.second);
 
+                        if(navi.isFirstLocation()) {
+                            response.append(resultPair.second);
+                            response.append("안내를 시작합니다.\"");
+                            tmap.getPOIItem(resultPair.second); //네비게이션 시작
+                        } else {
+                            response.append("위치정보를 받아올 수 없습니다.\n 잠시 뒤에 실행해주세요.\"");
+                        }
                         break;
                     case GroupConstants.INTENTION_CANCELLATION :
                         response.append("안내를 중단합니다.\"");
@@ -392,8 +397,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                     //minimum SDK version is 21
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         String utteranceId=this.hashCode() + "";
-                        tts.speak("안녕하세요. 목적지를 말씀해주세요.", TextToSpeech.QUEUE_ADD, null, utteranceId);
-
+                        tts.speak("반갑습니다.", TextToSpeech.QUEUE_ADD, null, utteranceId);
 
                     }
 
@@ -434,7 +438,6 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                             Log.d("mWay", "null");
                         else {
                             navi.startNavigation(mWay);
-
                             navi.stateCheck(navi.getStartY(), navi.getStartX());
                             naviTextView.append("fs : " + navi.getFeatureSize() + "\n");
                             naviTextView.append("f : " + navi.getFeatureNumber() + " dis : " + navi.getDistance() + " angle : " +

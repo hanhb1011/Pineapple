@@ -90,7 +90,7 @@
         android:id="@+id/response_tv"
         android:textSize="30sp"
         android:textColor="#525252"
-        android:maxLines="2"
+        android:maxLines="3"
         android:layout_margin="15dp"
         android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@+id/speech_tv"

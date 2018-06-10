@@ -25,7 +25,7 @@ public class RouteNavigation {
 
     }
 
-    public RouteNavigation(double srcLatitude, double srcLongitude, double dstLatitude, double dstLongitude, String dstName, String dstAddress, double dstDistance) {
+    public RouteNavigation(double srcLongitude,double srcLatitude, double dstLongitude, double dstLatitude,String dstName, String dstAddress, double dstDistance) {
         this.timestamp = Calendar.getInstance().getTimeInMillis();
         this.srcLatitude = srcLatitude;
         this.srcLongitude = srcLongitude;

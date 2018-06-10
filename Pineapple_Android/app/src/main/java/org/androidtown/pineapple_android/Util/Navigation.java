@@ -1,6 +1,7 @@
 package org.androidtown.pineapple_android.Util;
 
 import android.graphics.Color;
+import android.widget.Toast;
 
 import com.skt.Tmap.TMapPoint;
 import com.skt.Tmap.TMapPolyLine;
@@ -250,7 +251,9 @@ public class Navigation {
 
         //서버에 저장할 경로안내 클래스 정의
         RouteNavigation routeNavigation = new RouteNavigation(startX,startY,endX,endY, Tmap.lastPOIItem.getPOIName(),
-                Tmap.lastPOIItem.getPOIAddress(),Tmap.lastPOIItem.getDistance(new TMapPoint(startX,startY)));
+                Tmap.lastPOIItem.getPOIAddress(),navi.getDistanceFromLatLon(startX,startY,endX,endY));
+
+
         List<Node> nodes = new ArrayList<>(); // 경로상의 노드들을 저장할 List
 
         for(Feature f : features) {

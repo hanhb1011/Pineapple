@@ -148,7 +148,7 @@ public class FirebaseHelper {
     //경로 안내 시 기록을 서버에 저장한다.
     public void addRouteNavigation(RouteNavigation routeNavigation){
         if(user==null){
-            Toast.makeText(context, "잠시 후 다시 시도해주십시오", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "서버 통신 실패. 잠시 후 다시 시도해주십시오", Toast.LENGTH_SHORT).show();
             return;
         }
 

@@ -206,7 +206,7 @@ public class MainActivity extends Activity {
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
 
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "말씀해주세요.");
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "보낼 음성 메시지를 말씀해주세요.");
 
         try {
             //입력받은 음성은 onActivityResult 콜백에서 처리한다

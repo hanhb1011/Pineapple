@@ -36,7 +36,7 @@ public class BluetoothThread extends Thread{
         }
 
         while(isOn) {
-            
+
             try {
                 byte[] buffer = new byte[256];
                 int bytes;
