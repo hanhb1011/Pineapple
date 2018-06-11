@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     public static boolean speech = true;
     public static ImageView gpsImageView;
     public static ImageView bluetoothImageView;
+    public static ImageView helpImageView;
 
     TMapGpsManager gps2=null;
 
@@ -226,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         naviTextView = findViewById(R.id.navi);
         gpsImageView = findViewById(R.id.gps_iv);
         bluetoothImageView = findViewById(R.id.bluetooth_iv);
+        helpImageView = findViewById(R.id.help_iv);
     }
 
     //뷰 초기화
@@ -239,6 +241,14 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
             @Override
             public void onClick(View view) {
                 inputSpeechProcess(); //음성입력을 받는다.
+            }
+        });
+
+        helpImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                HelpFragment helpFragment= new HelpFragment();
+                helpFragment.show(getFragmentManager(),"");
             }
         });
     }
