@@ -16,12 +16,16 @@ byte buffer[1024];
 int bufferPosition; 
 int val;
 int init_angle=0;
-int buttonpin = 5;
+int sleepPin = 6;
+int sleepButtonInput = digitalRead(sleepPin);
+int voiceRecoPin = 5;
+int voiceRecoInput = digitalRead(voiceRecoPin);
 
 void setup(){
   pinMode(in1Pin,OUTPUT); pinMode(in2Pin,OUTPUT);
   pinMode(in3Pin,OUTPUT); pinMode(in4Pin,OUTPUT);
-  pinMode(buttonpin,INPUT);
+  pinMode(voiceRecoPin,INPUT);
+  pinMode(sleepPin, INPUT);
   BTSerial.begin(9600); 
   Serial.begin(9600);
   motor.setSpeed(300);
@@ -121,6 +125,26 @@ void wakeUp()
   
 }
 
+void sleepMode(int c)
+{
+  if (c == 1)
+  {
+  init_motor();
+
+  BTSerial.println("Power Off");
+  attachInterrupt(0, wakeUp, LOW);  // LOW, HIGH, RISING, FALLING, CHANGE
+
+  LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
+
+  detachInterrupt(0);
+  }
+  
+  else if (c == 0)
+  {
+    wakeUp();
+  }
+}
+
 void loop(){
  
  
@@ -131,25 +155,6 @@ void loop(){
       myString += (char)inChar; 
     }
   }
-   
-  int buttoninput = digitalRead(buttonpin);
-  
-  if (buttoninput == 1){
-   
-    init_motor();
-
-    BTSerial.println("Power Off");
-    attachInterrupt(0, wakeUp, LOW);  // LOW, HIGH, RISING, FALLING, CHANGE
-
-    LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
-
-    detachInterrupt(0)
-  } 
-
-  if (myString.toInt() == 400)
-  {
-      wakeUp();
-  }
     
   compass();
   delay(500);
@@ -159,10 +164,7 @@ void loop(){
     dir_cor(myString.toInt());
    }
    
-  else{
-  init_motor(myString.toInt());
-  }
-  
+  sleepMode(sleepButtonInput);
   
   if(!myString.equals(""))  
   {
