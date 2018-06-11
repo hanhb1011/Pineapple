@@ -1,6 +1,7 @@
 #include <Stepper.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
+#include <LowPower.h>
 #define address 0x1E
 
 int in1Pin=12,in2Pin=11,in3Pin=10,in4Pin=9;
@@ -106,26 +107,23 @@ void compass(){
   delay(500);
 }
 
-void init_motor(int c){
+void init_motor(){
 
   int val2 = map(init_angle,0,360,0,2048);
    
-  if(c == 370)
-  {
-    motor.step( val2);
-  }
-
+  motor.step( val2);
+ 
   init_angle = 0;
 }
 
-void loop(){
+void wakeUp()
+{
   
-  int buttoninput = digitalRead(buttonpin);
-  
-  if (buttoninput == 1){
-    BTSerial.print("button"); // 안드로이드 상 음성인식 작동 버튼 - 버튼을 1초 정도 꾹 누르면 "button" 이라는 문자가 안드로이드에 전달되며, 음성 인식 작동 
-  } 
+}
 
+void loop(){
+ 
+ 
    while(mySerial.available())  
   {
     int inChar = mySerial.read();
@@ -134,6 +132,25 @@ void loop(){
     }
   }
    
+  int buttoninput = digitalRead(buttonpin);
+  
+  if (buttoninput == 1){
+   
+    init_motor();
+
+    BTSerial.println("Power Off");
+    attachInterrupt(0, wakeUp, LOW);  // LOW, HIGH, RISING, FALLING, CHANGE
+
+    LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
+
+    detachInterrupt(0)
+  } 
+
+  if (myString.toInt() == 400)
+  {
+      wakeUp();
+  }
+    
   compass();
   delay(500);
   wrong_vib(myString.toInt()); 
