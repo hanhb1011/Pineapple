@@ -1,6 +1,7 @@
 package com.example.hanhb.caretaker_android;
 
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * Created by hanhb on 2018-06-01.
@@ -16,12 +17,14 @@ public class RouteNavigation {
     private String dstName;
     private String dstAddress;
     private double dstDistance;
+    private List<Node> nodes;
+
 
     public RouteNavigation() {
 
     }
 
-    public RouteNavigation(double srcLatitude, double srcLongitude, double dstLatitude, double dstLongitude, String dstName, String dstAddress, double dstDistance) {
+    public RouteNavigation(double srcLongitude,double srcLatitude, double dstLongitude, double dstLatitude,String dstName, String dstAddress, double dstDistance) {
         this.timestamp = Calendar.getInstance().getTimeInMillis();
         this.srcLatitude = srcLatitude;
         this.srcLongitude = srcLongitude;
@@ -94,5 +97,13 @@ public class RouteNavigation {
 
     public void setDstDistance(double dstDistance) {
         this.dstDistance = dstDistance;
+    }
+
+    public List<Node> getNodes() {
+        return nodes;
+    }
+
+    public void setNodes(List<Node> nodes) {
+        this.nodes = nodes;
     }
 }

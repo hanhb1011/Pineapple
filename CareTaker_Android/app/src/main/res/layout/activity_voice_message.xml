@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".StatusActivity">
+    tools:context=".VoiceMessageActivity">
 
     <Button
-        android:id="@+id/back_btn_in_status"
+        android:id="@+id/back_btn_in_voice_message"
         android:background="@drawable/back_button"
         android:layout_marginTop="15dp"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="10dp"
         android:layout_width="35dp"
         android:layout_height="35dp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
-        android:text="사용자의 현재 상태"
+        android:text="사용자가 보낸 음성메시지"
         android:textColor="#000000"
         android:textSize="25sp"
         android:textStyle="bold"
@@ -29,24 +29,14 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
-
-    <TextView
-        android:id="@+id/status_tv"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/voice_message_recycler_view"
+        android:layout_margin="10dp"
         android:layout_width="match_parent"
-        android:layout_margin="25dp"
         android:layout_height="wrap_content"
-        tools:text="현재 주소 : "
-        android:textSize="22sp"
+        app:layout_constraintTop_toBottomOf="@+id/log_title_tv"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/log_title_tv" />
-
-    <LinearLayout
-        android:id="@+id/tmap_layout"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_margin="15dp"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/status_tv" />
+        />
 
 </android.support.constraint.ConstraintLayout>

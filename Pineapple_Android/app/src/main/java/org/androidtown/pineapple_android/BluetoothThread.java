@@ -40,22 +40,24 @@ public class BluetoothThread extends Thread{
             try {
                 byte[] buffer = new byte[256];
                 int bytes;
-                String str;
+                String inputString;
 
                 DataInputStream dataInputStream = new DataInputStream(bluetoothSocket.getInputStream());
                 bytes = dataInputStream.read(buffer);
-                str = new String(buffer,0, bytes); //방위각
+                inputString = new String(buffer,0, bytes); // 아두이노로부터 입력받은 스트링
 
 
-                //temp (1초마다 토스트메시지출력)
+                /*temp (1초마다 토스트메시지출력)
                 android.os.Message message = new android.os.Message();
                 message.what = GroupConstants.MSG_TOAST;
-                message.obj = str;
+                message.obj = inputString;
+                */
 
-                if(str.length()>0)
-                    handler.sendMessage(message);
+                if(inputString.length() > 0) {
+                    //handler.sendMessage(message); // temp
+                    ((MainActivity)context).inputSpeechProcess(); //입력받을 경우 STT 메서드 실행
+                }
 
-                //end of temp
                 sleep(1000);
 
 

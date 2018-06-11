@@ -16,6 +16,7 @@ import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,12 +45,20 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         double lat = location.getLatitude();
         double lon = location.getLongitude();
         navi.setFirstLocation(true);
+
+        //GPS가 활성화되면 GPS이미지뷰를 Visible로 바꾸기
+        if(gpsImageView != null) {
+            gpsImageView.setVisibility(View.VISIBLE);
+
+        }
+
         firebaseHelper.updateCurrentLocation(lat,lon);
 
         navi.setPreX(navi.getCurrentX());
         navi.setPreY(navi.getCurrentY());
         navi.setCurrentX(lon);
         navi.setCurrentY(lat);
+
         if(navi.calcAngle()) {
             try {
                 int data = (int) navi.getDestinationAngle();
@@ -94,7 +103,10 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     public static ArrayList<Message> messageList;
     public static User user;
     public static FirebaseHelper firebaseHelper;
-
+    public static boolean speech = true;
+    public static ImageView gpsImageView;
+    public static ImageView bluetoothImageView;
+    public static ImageView helpImageView;
 
     TMapGpsManager gps2=null;
 
@@ -108,8 +120,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initView();
         init();
-        bindView();
         setView();
         testInit();//테스트
     }
@@ -162,6 +174,10 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     }
 
     private void init() {
+
+        //TextToSpeech 초기화
+        tts = getTTSInstance();
+
         //파이어베이스 초기화
         firebaseHelper = new FirebaseHelper(this);
 
@@ -180,9 +196,6 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 
         //message List 초기화
         messageList = new ArrayList<>();
-
-        //TextToSpeech 초기화
-        tts = getTTSInstance();
 
         //Navigation 초기화
         navi = Navigation.getInstance();
@@ -206,12 +219,15 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 
 
     //뷰 바인딩
-    private void bindView() {
+    private void initView() {
         micImageView = findViewById(R.id.mic_iv);
         speechTextView = findViewById(R.id.speech_tv);
         responseTextView = findViewById(R.id.response_tv);
         testTextView = findViewById(R.id.test_tv);
         naviTextView = findViewById(R.id.navi);
+        gpsImageView = findViewById(R.id.gps_iv);
+        bluetoothImageView = findViewById(R.id.bluetooth_iv);
+        helpImageView = findViewById(R.id.help_iv);
     }
 
     //뷰 초기화
@@ -219,24 +235,37 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 
         getSupportActionBar().hide(); //액션바 숨김
 
+
+        //마이크 이미지뷰를 클릭했을 때
         micImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //인터넷 연결을 확인하고, 연결이 되어있으면 서비스 실행
-                if(voiceRecognizer.isConnectedToInternet()) {
-                    voiceRecognizer.inputSpeech(); //음성 입력을 받는다.
-                } else {
-                    //연결이 되어있지 않으면 토스트 메시지 출력
-                    Toast.makeText(MainActivity.this, R.string.internet_connection_failed, Toast.LENGTH_SHORT).show();
-                }
+                inputSpeechProcess(); //음성입력을 받는다.
+            }
+        });
+
+        helpImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                HelpFragment helpFragment= new HelpFragment();
+                helpFragment.show(getFragmentManager(),"");
             }
         });
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public void inputSpeechProcess() {
+        //인터넷 연결을 확인하고, 연결이 되어있으면 서비스 실행
+        if(voiceRecognizer.isConnectedToInternet()) {
+            voiceRecognizer.inputSpeech(); //음성 입력을 받는다.
+        } else {
+            //연결이 되어있지 않으면 토스트 메시지 출력
+            Toast.makeText(MainActivity.this, R.string.internet_connection_failed, Toast.LENGTH_SHORT).show();
+        }
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
         //tts 중지 (Clear the buffer)
         if(tts != null){
             tts.stop();
@@ -244,6 +273,17 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
             tts = null;
         }
 
+        speech = false;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(tts == null){
+            tts = getTTSInstanceWithNewMessages();
+        }
+
+        speech = true;
     }
 
     @Override
@@ -253,6 +293,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         switch (requestCode) {
             //음성인식이 완료되었을 때
             case REQ_CODE_SPEECH_INPUT :
+                VoiceRecognizer.isAvailable = true; //음성입력이 다시 가능하게 하도록 set
+
                 //check validity
                 if(resultCode!=RESULT_OK || data == null)
                     return;
@@ -277,18 +319,19 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                 switch (resultPair.first) {
                     case GroupConstants.INTENTION_DESTINATION :
 
-                        response.append(resultPair.second);
-                        response.append(" 안내를 시작합니다.\"");
-                        tmap.getPOIItem(resultPair.second);
-
-                        //TODO 안내
-
+                        if(navi.isFirstLocation()) {
+                            response.append(resultPair.second);
+                            response.append("안내를 시작합니다.\"");
+                            tmap.getPOIItem(resultPair.second); //네비게이션 시작
+                        } else {
+                            response.append("위치정보를 받아올 수 없습니다.\n 잠시 뒤에 실행해주세요.\"");
+                        }
                         break;
                     case GroupConstants.INTENTION_CANCELLATION :
                         response.append("안내를 중단합니다.\"");
-
-                        //TODO 안내 중단
-
+                        if(Navigation.getInstance().isStarted()) {
+                            Navigation.getInstance().terminate();
+                        }
                         break;
 
                     case GroupConstants.INTENTION_INVALID :
@@ -305,6 +348,11 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                         response.append("지도.\"");
                         PathFragment pathFragment = new PathFragment();
                         pathFragment.show(getFragmentManager(),"");
+                        break;
+
+                    case GroupConstants.INTENTION_SEND_MESSAGE :
+                        response.append(resultPair.second+". 라고 전송했습니다.\"");
+                        firebaseHelper.sendMessageToCareTaker(resultPair.second);
                         break;
                 }
 
@@ -341,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             String utteranceId = String.valueOf(this.hashCode());
             try {
-                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId);
+                tts.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId);
             } catch (Exception e){
                 e.printStackTrace();
             }
@@ -359,7 +407,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                     //minimum SDK version is 21
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         String utteranceId=this.hashCode() + "";
-                        tts.speak("안녕하세요. 목적지를 말씀해주세요.", TextToSpeech.QUEUE_FLUSH, null, utteranceId);
+                        tts.speak("반갑습니다.", TextToSpeech.QUEUE_ADD, null, utteranceId);
+
                     }
 
                 } else {
@@ -368,7 +417,6 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
             }
         });
     }
-
 
 
     public void loadAnswer(double endX, double endY) {
@@ -454,4 +502,26 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
             return true;
     }
 
+    public TextToSpeech getTTSInstanceWithNewMessages() {
+        return new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status!=TextToSpeech.ERROR){
+                    tts.setLanguage(Locale.KOREAN);
+                    //minimum SDK version is 21
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        String utteranceId=this.hashCode() + "";
+                        tts.speak("안녕하세요. 목적지를 말씀해주세요.", TextToSpeech.QUEUE_ADD, null, utteranceId);
+
+                        if(firebaseHelper !=null) {
+                            firebaseHelper.getMessageAndSpeakAtOnce();
+                        }
+                    }
+
+                } else {
+                    Toast.makeText(MainActivity.this, "TTS Init Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
 }

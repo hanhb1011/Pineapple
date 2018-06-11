@@ -1,13 +1,18 @@
 package org.androidtown.pineapple_android.Util;
 
 import android.graphics.Color;
+import android.widget.Toast;
 
 import com.skt.Tmap.TMapPoint;
 import com.skt.Tmap.TMapPolyLine;
 
+import org.androidtown.pineapple_android.MainActivity;
 import org.androidtown.pineapple_android.Model.Feature;
 import org.androidtown.pineapple_android.Model.FindTheWay;
 import org.androidtown.pineapple_android.Model.Place;
+import org.androidtown.pineapple_android.Node;
+import org.androidtown.pineapple_android.RouteNavigation;
+import org.androidtown.pineapple_android.Tmap;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -43,7 +48,6 @@ public class Navigation {
     private double distance = 0.0d;
 
     private static boolean firstLocation=false;
-
 
 
 
@@ -245,15 +249,30 @@ public class Navigation {
     public void setLineInfo(){
         ArrayList<TMapPoint> alTMapPoint = new ArrayList<>();
 
+        //서버에 저장할 경로안내 클래스 정의
+        RouteNavigation routeNavigation = new RouteNavigation(startX,startY,endX,endY, Tmap.lastPOIItem.getPOIName(),
+                Tmap.lastPOIItem.getPOIAddress(),navi.getDistanceFromLatLon(startX,startY,endX,endY));
+
+
+        List<Node> nodes = new ArrayList<>(); // 경로상의 노드들을 저장할 List
+
         for(Feature f : features) {
             if(f.getGeometry().getType().equals("LineString")){
                 for(Object o : f.getGeometry().getCoordinates()){
                     List<Double> l = (List<Double>)o;
                     alTMapPoint.add(new TMapPoint(l.get(1),l.get(0)));
+                    nodes.add(new Node(l.get(1),l.get(0))); //노드정보 추가
                 }
             }
 
         }
+
+        //완성된 노드 리스트와 함께 서버에 경로정보 저장
+        routeNavigation.setNodes(nodes);
+        if(MainActivity.firebaseHelper != null) {
+            MainActivity.firebaseHelper.addRouteNavigation(routeNavigation);
+        }
+
 
         int mNodeSize = alTMapPoint.size();
         tMapPolyLines = new TMapPolyLine[mNodeSize-1];
@@ -412,5 +431,13 @@ public class Navigation {
             return true;
         }
         return false;
+    }
+
+
+    //네비게이션 종료
+    public void terminate() {
+        isStarted = false;
+        sSync = false;
+        dSync = false;
     }
 }

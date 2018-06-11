@@ -37,6 +37,7 @@ public class FirebaseHelper {
     private User user;
 
     public FirebaseHelper(Context context){
+
         this.context = context;
         database = FirebaseDatabase.getInstance();
         userRef = database.getReference("user");
@@ -75,6 +76,8 @@ public class FirebaseHelper {
                     MainActivity.user = user; //메인액티비티에 user를 참조시킴
                     FirebaseHelper.this.user = user;
 
+                    getMessageAndSpeak(); // 메시지를 주기적으로 받고, MainActivity의 tts를 통해 말한다.
+
                 }
             });
 
@@ -97,6 +100,7 @@ public class FirebaseHelper {
 
                         MainActivity.user = user;
                         FirebaseHelper.this.user = user;
+                        getMessageAndSpeak(); // 메시지를 주기적으로 받고, MainActivity의 tts를 통해 말한다.
 
                         /*
                         // 서버로부터 로그 읽기
@@ -144,7 +148,7 @@ public class FirebaseHelper {
     //경로 안내 시 기록을 서버에 저장한다.
     public void addRouteNavigation(RouteNavigation routeNavigation){
         if(user==null){
-            Toast.makeText(context, "잠시 후 다시 시도해주십시오", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "서버 통신 실패. 잠시 후 다시 시도해주십시오", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -183,4 +187,86 @@ public class FirebaseHelper {
 
     }
 
+    public void getMessageAndSpeak(){
+        if(MainActivity.user == null){
+            return;
+        }
+
+        userRef.child(MainActivity.user.getUid()).child("messageToBlind").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(MainActivity.speech) {
+                    if (dataSnapshot.getValue() != null) {
+                        ((MainActivity) context).speak("보호자로부터 새로운 메시지가 도착했습니다.");
+
+                        final Iterable<DataSnapshot> snapshots = dataSnapshot.getChildren();
+                        userRef.child(MainActivity.user.getUid()).child("messageToBlind").removeValue()
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        for (DataSnapshot data : snapshots) {
+                                            String s = data.child("message").getValue(String.class);
+                                            ((MainActivity) context).speak(s);
+                                        }
+                                    }
+                                });
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+    }
+
+    public void getMessageAndSpeakAtOnce(){
+        if(MainActivity.user == null){
+            return;
+        }
+
+        userRef.child(MainActivity.user.getUid()).child("messageToBlind").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    ((MainActivity) context).speak("보호자로부터 새로운 메시지가 도착했습니다.");
+
+                    final Iterable<DataSnapshot> snapshots = dataSnapshot.getChildren();
+                    userRef.child(MainActivity.user.getUid()).child("messageToBlind").removeValue()
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    for (DataSnapshot data : snapshots) {
+                                        String message = data.child("message").getValue(String.class);
+                                        ((MainActivity) context).speak(message);
+                                    }
+                                }
+                            });
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+
+    public void sendMessageToCareTaker(String message) {
+        if(MainActivity.user == null){
+            return;
+        }
+
+        VoiceMessage voiceMessage = new VoiceMessage(message);
+        userRef.child(MainActivity.user.getUid()).child("messageToCareTaker").push().setValue(voiceMessage);
+
+    }
 }

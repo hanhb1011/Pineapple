@@ -21,6 +21,7 @@ public class Tmap {
     private Context context;
     private TMapView tMapView;
     private TMapTapi tmaptapi;
+    public static TMapPOIItem lastPOIItem;
 
 
     Tmap(Context context) {
@@ -53,6 +54,7 @@ public class Tmap {
                         Message message = new Message();
                         message.what = GroupConstants.MSG_TEST;
                         message.obj = minTMapPOIItem;
+                        lastPOIItem = minTMapPOIItem;
                         ((MainActivity)context).mainHandler.sendMessage(message);
                     }
 

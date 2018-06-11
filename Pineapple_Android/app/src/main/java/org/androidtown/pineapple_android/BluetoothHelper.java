@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
+import android.view.View;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -87,6 +88,11 @@ public class BluetoothHelper {
             if(bluetoothSocket.isConnected()) {
                 bluetoothThread = new BluetoothThread(context, bluetoothSocket);
                 bluetoothThread.start();
+
+                //블루투스 통신 성공을 알리기 위해 블루투스 이미지뷰 Visibility 바꾸기
+                if(MainActivity.bluetoothImageView != null){
+                    MainActivity.bluetoothImageView.setVisibility(View.VISIBLE);
+                }
             }
 
         } catch (IOException e){
