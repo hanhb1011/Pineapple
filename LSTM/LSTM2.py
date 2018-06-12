@@ -13,18 +13,9 @@ from __future__ import print_function
 import tensorflow as tf
 from tensorflow.contrib import rnn
 
-import numpy
 import csv
 
-# Import MNIST data
-from tensorflow.examples.tutorials.mnist import input_data
-mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
-'''
-To classify images using a recurrent neural network, we consider every image
-row as a sequence of pixels. Because MNIST image shape is 28*28px, we will then
-handle 28 sequences of 28 steps for every sample.
-'''
 
 """
 이전노드위도, 이전노드경도, 현재위도, 현재경도, 다음노드위도, 다음노드경도
@@ -38,7 +29,7 @@ handle 28 sequences of 28 steps for every sample.
 learning_rate = 0.001
 training_steps = 10000
 batch_size = 128
-display_step = 10
+display_step = 200
 
 # Network Parameters
 num_input = 6 # 입력변수의 크기
@@ -96,7 +87,71 @@ accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 init = tf.global_variables_initializer()
 
 # Start training
+with tf.Session() as sess:
 
+    # Run the initializer
+    sess.run(init)
+
+    data = []
+    with open('trainingData.csv', 'r') as csvfile:
+        plot = csv.reader(csvfile, delimiter=',')
+        for row in plot:
+            data += [row]
+
+
+    size = len(data) - len(data)%batch_size
+
+    batch_x = []
+    batch_y = []
+    count = 0
+    for i in range(0, size):
+        if (i != 0) and (i % batch_size == 0):
+            sess.run(train_op, feed_dict={X: batch_x, Y: batch_y})
+            count = count + 1
+
+            if (count % display_step == 0) or (count == 1):
+                # Calculate batch loss and accuracy
+                loss, acc = sess.run([loss_op, accuracy], feed_dict={X: batch_x,
+                                                                     Y: batch_y})
+                print("Step " + str(i//batch_size) + ", Minibatch Loss= " + \
+                      "{:.4f}".format(loss) + ", Training Accuracy= " + \
+                      "{:.3f}".format(acc))
+
+            batch_x.clear()
+            batch_y.clear()
+
+        batch_x.append([[data[i][0], data[i][1], data[i][2], data[i][3], data[i][4], data[i][5]]])
+        if data[i][0] == 0:
+            batch_y.append([1, 0])
+        else:
+            batch_y.append([0, 1])
+
+    print("Optimization Finished!")
+
+
+    # Calculate accuracy for test data
+    data2 = []
+    with open('testData.csv', 'r') as csvfile2:
+        plot2 = csv.reader(csvfile2, delimiter=',')
+        for row in plot2:
+            data2 += [row]
+
+    test_data = []
+    test_label = []
+
+    for i in range(0, 128):
+        test_data.append([[data[i][0], data[i][1], data[i][2], data[i][3], data[i][4], data[i][5]]])
+        if data[i][0] == 0:
+            test_label.append([1, 0])
+        else:
+            test_label.append([0, 1])
+
+    print("Testing Accuracy:", \
+        sess.run(accuracy, feed_dict={X: test_data, Y: test_label}))
+
+    print(sess.run(prediction, feed_dict={X: [[[129.21091504368758,34.26426359714899,129.2109475784393,34.264443489735775,129.21091291235834,34.264261465819736]]]}))
+
+<<<<<<< HEAD
 batch_x, batch_y = mnist.train.next_batch(batch_size)
 
 
@@ -187,3 +242,5 @@ print(tx[0])
 #     print("Testing Accuracy:", \
 #         sess.run(accuracy, feed_dict={X: test_data, Y: test_label}))
 #
+=======
+>>>>>>> e3e81808c33c51d725e895846856bf8ae6f55ea9
