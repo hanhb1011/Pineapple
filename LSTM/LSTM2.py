@@ -128,29 +128,22 @@ size = (len(data) - len(data)%batch_size)
 tx = list()
 ty = []
 for i in range(0, size):
-    # if i % batch_size == 0:
-    #     train_x += [tx]
-    #     train_y += [ty]
-    #     tx = []
-    #     ty = []
-    # else:
-    #     tx += [data[i][0], data[i][1], data[i][2], data[i][3], data[i][4], data[i][5]]
-    #     print(tx)
-    #     if data[i][0] == 0:
-    #         ty += [[1, 0]]
-    #     else:
-    #         ty += [[0, 1]]
-    tx[i//batch_size] = [data[i][0], data[i][1], data[i][2], data[i][3], data[i][4], data[i][5]]
-    if data[i][0] == 0:
-        ty += [[1, 0]]
+    if i % batch_size == 0:
+        train_x += [tx]
+        train_y += [ty]
+        tx = []
+        ty = []
     else:
-        ty += [[0, 1]]
+        tx.append([data[i][0], data[i][1], data[i][2], data[i][3], data[i][4], data[i][5]])
+        if data[i][0] == 0:
+            ty += [[1, 0]]
+        else:
+            ty += [[0, 1]]
 
+print(tx)
+print(len(tx))
+print(tx[0])
 
-nx = numpy.asarray(tx)
-nx = nx.reshape((128, 6))
-print(len(nx))
-print(len(nx[0]))
 
 # xxx = numpy.asarray(train_x)
 # print(list(train_x))
