@@ -1,7 +1,8 @@
 #include <Stepper.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
-#include <LowPower.h>
+//#include <LowPower.h>
+#include <EEPROM.h>
 #define address 0x1E
 
 int in1Pin=12,in2Pin=11,in3Pin=10,in4Pin=9;
@@ -16,16 +17,16 @@ byte buffer[1024];
 int bufferPosition; 
 int val;
 int init_angle=0;
-int sleepPin = 6;
-int sleepButtonInput = digitalRead(sleepPin);
+//int sleepPin = 6;
 int voiceRecoPin = 5;
-int voiceRecoInput = digitalRead(voiceRecoPin);
+int wake = 0;
+int wake2 = 1;
 
 void setup(){
   pinMode(in1Pin,OUTPUT); pinMode(in2Pin,OUTPUT);
   pinMode(in3Pin,OUTPUT); pinMode(in4Pin,OUTPUT);
   pinMode(voiceRecoPin,INPUT);
-  pinMode(sleepPin, INPUT);
+  //pinMode(sleepPin, INPUT);
   BTSerial.begin(9600); 
   Serial.begin(9600);
   motor.setSpeed(300);
@@ -37,6 +38,7 @@ void setup(){
   Wire.write(0x02); 
   Wire.write(0x00); 
   Wire.endTransmission();
+  init_motor(EEPROM.read(wake2));
 }
 
 void dir_cor(int a){
@@ -47,19 +49,30 @@ void dir_cor(int a){
     init_angle = - (180 - init_angle%180);
  } 
  
+  if (init_angle >= 0)
+ {
+  EEPROM.write(wake, init_angle);
+  EEPROM.write(wake2, 0);
+ }
+
+  else if (init_angle < 0)
+  {
+   EEPROM.write(wake, -init_angle);
+   EEPROM.write(wake2, 1);
+  } 
+  
  motor.step(-val);
  delay(2000);
-
 }
 
 void wrong_vib(int b){
-  if(b == 150){
+  if(b == 700){
   analogWrite(7, 200);                     
   delay(3000);   
   analogWrite(7, 0);
   }
   
-  else if(b == 900){
+  else if(b == 800){
   analogWrite(7, 200);                     
   delay(1000);   
   analogWrite(7 , 0);
@@ -101,10 +114,6 @@ void compass(){
   
   Serial.println("Azimuth : "+String(bearing));
 
-  /*
-  BTSerial.print("Azimuth : ");
-  BTSerial.println(bearing);
-*/
   angle = 0;
   bearing = 0;
 
@@ -112,14 +121,24 @@ void compass(){
 }
 
 void init_motor(){
-
-  int val2 = map(init_angle,0,360,0,2048);
-   
-  motor.step( val2);
- 
+  int angle = EEPROM.read(wake);
+  
+  if(angle!=0){
+    int val2 = map(init_angle,0,360,0,2048);
+      if (a>0) {
+    motor.step(-val2);
+    }
+    
+    else {
+    motor.step(val2);
+    }
+  }
+  
   init_angle = 0;
+  EEPROM.write(wake, 0);
+  EEPROM.write(wake2, 0);
 }
-
+/*
 void wakeUp()
 {
   
@@ -144,10 +163,20 @@ void sleepMode(int c)
     wakeUp();
   }
 }
+*/
+
+void voiceReco (int d)
+{
+  if (d==1)
+  {
+    BTSerial.println("button"); 
+  }
+}
 
 void loop(){
- 
- 
+// int sleepButtonInput = digitalRead(sleepPin);
+ int voiceRecoInput = digitalRead(voiceRecoPin);
+  
    while(mySerial.available())  
   {
     int inChar = mySerial.read();
@@ -163,8 +192,14 @@ void loop(){
   if (abs( myString.toInt() ) <= 180){
     dir_cor(myString.toInt());
    }
-   
-  sleepMode(sleepButtonInput);
+  
+   /*
+  if (sleepButtonInput == 1)
+  {
+    wake += sleepButtonInput;  
+  }
+  */
+//  sleepMode(sleepButtonInput);
   
   if(!myString.equals(""))  
   {
