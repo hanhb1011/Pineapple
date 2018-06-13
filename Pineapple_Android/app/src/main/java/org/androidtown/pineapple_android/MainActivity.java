@@ -44,7 +44,9 @@ import retrofit2.Response;
 import static org.androidtown.pineapple_android.GroupConstants.REQ_CODE_SPEECH_INPUT;
 
 public class MainActivity extends AppCompatActivity
-        implements TMapGpsManager.onLocationChangedCallback, GoogleApiClient.ConnectionCallbacks {
+        implements TMapGpsManager.onLocationChangedCallback, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
+
 
 
     @Override
@@ -106,6 +108,8 @@ public class MainActivity extends AppCompatActivity
     public static ImageView helpImageView;
 
     private GoogleApiClient googleApiClient;
+
+
 
     TMapGpsManager gps2=null;
 
@@ -219,7 +223,7 @@ public class MainActivity extends AppCompatActivity
     private synchronized void setupGClient() {
         googleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this, 0, this)
-                .addConnectionCallbacks(true)
+                .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
