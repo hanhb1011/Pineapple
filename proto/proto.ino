@@ -1,9 +1,11 @@
 #include <Stepper.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
-//#include <LowPower.h>
 #include <EEPROM.h>
+#include <I2Cdev.h>
+#include <HMC5883L.h>
 #define address 0x1E
+//#include <LowPower.h>
 
 int in1Pin=12,in2Pin=11,in3Pin=10,in4Pin=9;
 Stepper motor(32,in1Pin,in2Pin,in3Pin,in4Pin);
@@ -17,10 +19,12 @@ byte buffer[1024];
 int bufferPosition; 
 int val;
 int init_angle=0;
-//int sleepPin = 6;
 int voiceRecoPin = 5;
 int wake = 0;
 int wake2 = 1;
+HMC5883L mag;
+int16_t mx, my, mz;
+//int sleepPin = 6;
 
 void setup(){
   pinMode(in1Pin,OUTPUT); pinMode(in2Pin,OUTPUT);
@@ -33,21 +37,42 @@ void setup(){
   mySerial.begin(9600);
   bufferPosition = 0; 
   Wire.begin();
- 
+ /*
   Wire.beginTransmission(address);
   Wire.write(0x02); 
   Wire.write(0x00); 
   Wire.endTransmission();
+  */
+  mag.initialize();
   init_motor(EEPROM.read(wake2));
 }
 
-void dir_cor(int a){
- int val = map(a,0,360,0,2048);
- 
- init_angle += a;
- if(init_angle >= 180 ){
-    init_angle = - (180 - init_angle%180);
- } 
+int correct(int angle){
+  if(abs(angle)>180) {
+     if(angle>0){
+        return angle-360;
+     } else {
+        return angle+360;
+     }
+  } else {
+    return angle;
+  }
+}
+
+void dir_cor(int dst_angle, int cur_angle){
+  int final_angle = dst_angle - cur_angle;
+  final_angle = correct(final_angle);
+  final_angle -= init_angle;
+  final_angle = correct(final_angle);
+
+  init_angle += final_angle;
+  init_angle = correct(init_angle);
+  
+  Serial.println(dst_angle);
+  Serial.println(cur_angle);
+  Serial.println(init_angle);
+  Serial.println(final_angle);
+  Serial.println("\n");
  
   if (init_angle >= 0)
  {
@@ -61,8 +86,8 @@ void dir_cor(int a){
    EEPROM.write(wake2, 1);
   } 
   
+ int val = map(a,0,360,0,2048); 
  motor.step(-val);
- delay(2000);
 }
 
 void wrong_vib(int b){
@@ -79,7 +104,8 @@ void wrong_vib(int b){
   }
 }
 
-void compass(){
+int compass(){
+  /*
   int x,y,z; //triple axis data
   double angle;
   
@@ -118,6 +144,14 @@ void compass(){
   bearing = 0;
 
   delay(500);
+  */
+  mag.getHeading(&mx, &my, &mz);
+  float heading = atan2(my, mx);
+  if(heading < 0)
+  heading += 2 * M_PI;
+  float  heading2 = heading * 180/M_PI;
+  
+  return heading2;
 }
 
 void init_motor(){
@@ -175,22 +209,22 @@ void voiceReco (int d)
 
 void loop(){
 // int sleepButtonInput = digitalRead(sleepPin);
- int voiceRecoInput = digitalRead(voiceRecoPin);
+  int voiceRecoInput = digitalRead(voiceRecoPin);
+  bool readSomething = false;
   
    while(mySerial.available())  
   {
     int inChar = mySerial.read();
     if (isDigit(inChar) || inChar == '-'){
       myString += (char)inChar; 
+      readSomething = true; 
     }
   }
-    
-  compass();
-  delay(500);
+  
   wrong_vib(myString.toInt()); 
   
-  if (abs( myString.toInt() ) <= 180){
-    dir_cor(myString.toInt());
+  if (myString.toInt() <= 360 && 0 <= myString.toInt() && readSomething){
+    dir_cor(myString.toInt(), compass());
    }
   
    /*
@@ -200,6 +234,8 @@ void loop(){
   }
   */
 //  sleepMode(sleepButtonInput);
+  
+  voiceReco(voiceRecoInput);
   
   if(!myString.equals(""))  
   {
