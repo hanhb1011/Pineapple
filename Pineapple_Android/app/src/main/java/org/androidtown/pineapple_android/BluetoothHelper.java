@@ -118,15 +118,22 @@ public class BluetoothHelper {
     }
 
     //byte[] 형태로 데이터 전송
-    public void sendData(byte[] inputData){
+    public void sendData(String inputString){
         if(bluetoothSocket == null || !bluetoothSocket.isConnected()) {
             Toast.makeText(context, R.string.bluetooth_not_found, Toast.LENGTH_SHORT).show();
             return;
         }
 
+        //string to bytearray
+        byte[] byteArray = new byte[inputString.length()];
+        for(int i = 0; i < inputString.length(); i++){
+            byteArray[i] = (byte) inputString.charAt(i);
+        }
+
+
         //outputStream을 통해 데이터 전송
         try {
-            bluetoothSocket.getOutputStream().write(inputData);
+            bluetoothSocket.getOutputStream().write(byteArray);
         } catch (IOException e){
             e.printStackTrace();
         }

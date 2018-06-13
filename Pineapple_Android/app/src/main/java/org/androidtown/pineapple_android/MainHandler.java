@@ -7,6 +7,8 @@ import android.widget.Toast;
 
 import com.skt.Tmap.TMapPOIItem;
 
+import org.androidtown.pineapple_android.Util.Navigation;
+
 /**
  * Created by hanhb on 2018-04-11.
  */
@@ -37,12 +39,18 @@ public class MainHandler extends Handler {
                         .append("주소 : ").append(item.getPOIAddress().replace("null","")).append("\n")
                         .append("거리 : ").append(item.getDistance(((MainActivity)context).tmap.getCurrentTMapPoint())).append("\n");
 
-                MainActivity.navi.terminate();
+                Navigation navi = Navigation.getInstance();
+
+                navi.terminate();
 
                 ((MainActivity)context).testTextView.setText(str);
-                MainActivity.navi.setdSync(true);
-                MainActivity.navi.setEndX(item.getPOIPoint().getLongitude());
-                MainActivity.navi.setEndY(item.getPOIPoint().getLatitude());
+                navi.setdSync(true);
+                navi.setEndX(item.getPOIPoint().getLongitude());
+                navi.setEndY(item.getPOIPoint().getLatitude());
+                if(navi.isFirstLocation()){
+                    navi.setsSync(true);
+                    ((MainActivity)context).loadAnswer(navi.getEndX(),navi.getEndY());
+                }
                 break;
 
             case GroupConstants.MSG_TEST_BT :

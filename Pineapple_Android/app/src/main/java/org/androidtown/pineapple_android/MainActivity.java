@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -20,11 +21,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.skt.Tmap.TMapGpsManager;
 
 import org.androidtown.pineapple_android.Model.FindTheWay;
 import org.androidtown.pineapple_android.Retrofit.RetrofitService;
 import org.androidtown.pineapple_android.Util.ApiUtils;
+import org.androidtown.pineapple_android.Util.GpsInfoService;
 import org.androidtown.pineapple_android.Util.Navigation;
 import org.androidtown.pineapple_android.Util.NavigationBody;
 
@@ -38,7 +43,9 @@ import retrofit2.Response;
 
 import static org.androidtown.pineapple_android.GroupConstants.REQ_CODE_SPEECH_INPUT;
 
-public class MainActivity extends AppCompatActivity implements TMapGpsManager.onLocationChangedCallback {
+public class MainActivity extends AppCompatActivity
+        implements TMapGpsManager.onLocationChangedCallback, GoogleApiClient.ConnectionCallbacks {
+
 
     @Override
     public void onLocationChange(Location location) {
@@ -49,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         //GPS가 활성화되면 GPS이미지뷰를 Visible로 바꾸기
         if(gpsImageView != null) {
             gpsImageView.setVisibility(View.VISIBLE);
-
         }
 
         firebaseHelper.updateCurrentLocation(lat,lon);
@@ -62,16 +68,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         if(navi.calcAngle()) {
             try {
                 int data = (int) navi.getDestinationAngle();
-                data = data << 4;
-                data = data | 1;
-                String inputString = data + "";
-                byte[] byteArray = new byte[inputString.length()];
-                for(int i = 0; i < inputString.length(); i++){
-                    byteArray[i] = (byte) inputString.charAt(i);
-                }
-
-                bluetoothHelper.sendData(byteArray); //목적지 방위각 전송
-
+                bluetoothHelper.sendData(data + ""); //목적지 방위각 전송
             } catch (Exception e) {
                 Toast.makeText(MainActivity.this, "TYPE ERROR", Toast.LENGTH_SHORT).show();
             }
@@ -80,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         if(navi.isStarted()){
             navi.stateCheck(lat,lon);
             if(navi.getLeaveWayCount()>0){//거리가 멀어진 경우
-                //진동모터 ??
+                //진동모터
             }
             naviTextView.append("f : " + navi.getFeatureNumber() + " dis : " + navi.getDistance() + " angle : " +
                     (int)navi.getDestinationAngle() + "\n");
@@ -107,6 +104,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     public static ImageView gpsImageView;
     public static ImageView bluetoothImageView;
     public static ImageView helpImageView;
+
+    private GoogleApiClient googleApiClient;
 
     TMapGpsManager gps2=null;
 
@@ -137,16 +136,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
             public void onClick(View view) {
                 String inputString = testEditText.getText().toString();
                 if(inputString.length()>0){
-
                     try {
-                        byte[] byteArray = new byte[inputString.length()];
-                        for(int i = 0; i < inputString.length(); i++){
-                            byteArray[i] = (byte) inputString.charAt(i);
-                        }
-
-                        //bluetoothHelper.sendData(Integer.valueOf(testEditText.getText().toString().trim()));
-                        bluetoothHelper.sendData(byteArray);
-
+                        bluetoothHelper.sendData(inputString);
                     } catch (Exception e) {
                         Toast.makeText(MainActivity.this, "TYPE ERROR", Toast.LENGTH_SHORT).show();
                     }
@@ -174,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     }
 
     private void init() {
+        setupGClient();
 
         //TextToSpeech 초기화
         tts = getTTSInstance();
@@ -204,19 +196,69 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         mService = ApiUtils.getRetrofitService();
 
         //gps 퍼미션, gps객체 초기화
+//        if(!checkLocationPermission()) {
+//            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+//        }else{
+//            GpsInfoService gps = new GpsInfoService(this);
+//            if(gps.isGetLocation()){
+//                navi.setCurrentX(gps.getLongitude());
+//                navi.setCurrentY(gps.getLatitude());
+//                navi.setFirstLocation(true);
+//            }else{
+//                gps.showSettingsAlert(); //gps 꺼져있을 시에 실행부분
+//            }
+//
+//            gps2 = new TMapGpsManager(this);
+//            gps2.setMinTime(1000);
+//            gps2.setMinDistance(5);
+//            gps2.setProvider(gps2.GPS_PROVIDER);
+//            gps2.OpenGps();
+//        }
+    }
+
+    private synchronized void setupGClient() {
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, 0, this)
+                .addConnectionCallbacks(true)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        googleApiClient.connect();
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
         if(!checkLocationPermission()) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-        }else{
-            gps2 = new TMapGpsManager(this);
-            gps2.setMinTime(1000);
-            gps2.setMinDistance(5);
-            gps2.setProvider(gps2.GPS_PROVIDER);
-            gps2.OpenGps();
-        }
+        }else {
+            if(googleApiClient != null && googleApiClient.isConnected()) {
+                GpsInfoService gps = new GpsInfoService(this);
+                if (gps.isGetLocation()) {
+                    navi.setCurrentX(gps.getLongitude());
+                    navi.setCurrentY(gps.getLatitude());
+                    navi.setFirstLocation(true);
+                } else {
+                    gps.showSettingsAlert(); //gps 꺼져있을 시에 실행부분
+                }
 
+                gps2 = new TMapGpsManager(this);
+                gps2.setMinTime(1000);
+                gps2.setMinDistance(5);
+                gps2.setProvider(gps2.GPS_PROVIDER);
+                gps2.OpenGps();
+            }
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
 
     }
 
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult){
+        
+    }
 
     //뷰 바인딩
     private void initView() {
@@ -421,49 +463,48 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 
     public void loadAnswer(double endX, double endY) {
         if(gps2!=null) {
-            double startX=126.9823439963945;
-            double startY=37.56461982743129;
-            if(gps2!=null) {
-                startX = gps2.getLocation().getLongitude();
-                startY = gps2.getLocation().getLatitude();
-            }
-            NavigationBody navigationBody = new NavigationBody();
+            if(navi.isFirstLocation()) {
+                double startX = navi.getCurrentX();
+                double startY = navi.getCurrentY();
 
-            String s = "시작위도 : " + startY + "\n" + "시작경도" + startX + "\n";
-            testTextView.append(s);
-            testTextView.append("네비게이션 시작\n");
+                NavigationBody navigationBody = new NavigationBody();
 
-            navigationBody.setStartPoint(startX, startY); //출발지 설정
-            navigationBody.setEndPoint(endX, endY); //목적지 설정
+                String s = "시작위도 : " + startY + "\n" + "시작경도" + startX + "\n";
+                testTextView.append(s);
+                testTextView.append("네비게이션 시작\n");
 
-            navi.setStartX(startX);
-            navi.setStartY(startY);
-            mService.getFindTheWay(navigationBody.getRequestBody()).enqueue(new Callback<FindTheWay>() {
-                @Override
-                public void onResponse(Call<FindTheWay> call, Response<FindTheWay> response) {
-                    if (response.isSuccessful()) {
-                        Log.d("MainActivity", "posts loaded from API");
-                        mWay = response.body();
-                        if (mWay == null)
-                            Log.d("mWay", "null");
-                        else {
-                            navi.startNavigation(mWay);
-                            navi.stateCheck(navi.getStartY(), navi.getStartX());
-                            naviTextView.append("fs : " + navi.getFeatureSize() + "\n");
-                            naviTextView.append("f : " + navi.getFeatureNumber() + " dis : " + navi.getDistance() + " angle : " +
-                                    (int)navi.getDestinationAngle() + "\n");
+                navigationBody.setStartPoint(startX, startY); //출발지 설정
+                navigationBody.setEndPoint(endX, endY); //목적지 설정
+
+                navi.setStartX(startX);
+                navi.setStartY(startY);
+                mService.getFindTheWay(navigationBody.getRequestBody()).enqueue(new Callback<FindTheWay>() {
+                    @Override
+                    public void onResponse(Call<FindTheWay> call, Response<FindTheWay> response) {
+                        if (response.isSuccessful()) {
+                            Log.d("MainActivity", "posts loaded from API");
+                            mWay = response.body();
+                            if (mWay == null)
+                                Log.d("mWay", "null");
+                            else {
+                                navi.startNavigation(mWay);
+                                navi.stateCheck(navi.getStartY(), navi.getStartX());
+                                naviTextView.append("fs : " + navi.getFeatureSize() + "\n");
+                                naviTextView.append("f : " + navi.getFeatureNumber() + " dis : " + navi.getDistance() + " angle : " +
+                                        (int) navi.getDestinationAngle() + "\n");
+                            }
+                        } else {
+                            int statusCode = response.code();
                         }
-                    } else {
-                        int statusCode = response.code();
                     }
-                }
 
-                @Override
-                public void onFailure(Call<FindTheWay> call, Throwable t) {
-                    Log.d("MainActivity", "error loading from API\n" + call.request() + "\n" + t.getMessage());
+                    @Override
+                    public void onFailure(Call<FindTheWay> call, Throwable t) {
+                        Log.d("MainActivity", "error loading from API\n" + call.request() + "\n" + t.getMessage());
 
-                }
-            });
+                    }
+                });
+            }
         }else{
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }
@@ -476,11 +517,23 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    gps2 = new TMapGpsManager(this);
-                    gps2.setMinTime(1000*5);
-                    gps2.setMinDistance(5);
-                    gps2.setProvider(gps2.GPS_PROVIDER);
-                    gps2.OpenGps();
+                    if(googleApiClient !=null && googleApiClient.isConnected()) {
+                        GpsInfoService gps = new GpsInfoService(this);
+                        if (gps.isGetLocation()) {
+                            navi.setCurrentX(gps.getLongitude());
+                            navi.setCurrentY(gps.getLatitude());
+                            navi.setFirstLocation(true);
+                        } else {
+                            gps.showSettingsAlert(); //gps 꺼져있을 시에 실행부분
+                        }
+
+
+                        gps2 = new TMapGpsManager(this);
+                        gps2.setMinTime(1000 * 5);
+                        gps2.setMinDistance(5);
+                        gps2.setProvider(gps2.GPS_PROVIDER);
+                        gps2.OpenGps();
+                    }
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
