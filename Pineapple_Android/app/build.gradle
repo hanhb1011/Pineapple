@@ -18,6 +18,12 @@ android {
     }
 }
 
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26.1.0'
@@ -33,6 +39,10 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:11.0.4'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
+
+
+    compile 'org.tensorflow:tensorflow-android:+'
+
 }
 
 
