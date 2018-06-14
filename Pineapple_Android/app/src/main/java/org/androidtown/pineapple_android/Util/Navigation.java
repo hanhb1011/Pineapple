@@ -1,7 +1,6 @@
 package org.androidtown.pineapple_android.Util;
 
 import android.graphics.Color;
-import android.widget.Toast;
 
 import com.skt.Tmap.TMapPoint;
 import com.skt.Tmap.TMapPolyLine;
@@ -37,6 +36,7 @@ public class Navigation {
     private Feature currentFeature;
     private List<Place> currentPlaces;
     private Place currentPlace;
+    private Place prePlace;
     private String description;
     private int featureSize;
     private int type;
@@ -60,6 +60,22 @@ public class Navigation {
 
     private double startX=0,startY=0,endX=0,endY=0,currentX=0,currentY=0,preX=0,preY=0;
     private double destinationAngle=0.0d;
+
+    public Place getCurrentPlace() {
+        return currentPlace;
+    }
+
+    public void setCurrentPlace(Place currentPlace) {
+        this.currentPlace = currentPlace;
+    }
+
+    public Place getPrePlace() {
+        return prePlace;
+    }
+
+    public void setPrePlace(Place prePlace) {
+        this.prePlace = prePlace;
+    }
 
     public static boolean isFirstLocation() {
         return firstLocation;
@@ -302,6 +318,7 @@ public class Navigation {
                 description = currentFeature.getProperties().getDescription();
                 double x = (double)currentFeature.getGeometry().getCoordinates().get(0);
                 double y = (double)currentFeature.getGeometry().getCoordinates().get(1);
+                prePlace = currentPlace;
                 currentPlace = new Place(x,y,featureNumber);
 
                 distance = getDistanceFromLatLon(x,y,currentX,currentY);
@@ -317,6 +334,7 @@ public class Navigation {
                 }
                 currentPlaces = temp;
                 lineNumber = 1;
+                prePlace = currentPlace;
                 currentPlace = currentPlaces.get(lineNumber);
 
                 distance = getDistanceFromLatLon(currentPlace.getX(),currentPlace.getY(),currentX,currentY);
@@ -339,6 +357,7 @@ public class Navigation {
             description = currentFeature.getProperties().getDescription();
             double x = (double)currentFeature.getGeometry().getCoordinates().get(0);
             double y = (double)currentFeature.getGeometry().getCoordinates().get(1);
+            prePlace = new Place(currentX,currentY,-1);
             currentPlace = new Place(x,y,featureNumber);
         }
         else{
@@ -350,6 +369,7 @@ public class Navigation {
             }
             currentPlaces = temp;
             lineNumber = 1;
+            prePlace = new Place(currentX,currentY,-1);
             currentPlace = currentPlaces.get(lineNumber);
         }
     }
@@ -393,6 +413,7 @@ public class Navigation {
                 if(currentPlaces.size() == lineNumber){//linestring 끝 도달
                     nextFeature();
                 }else {
+                    prePlace = currentPlace;
                     currentPlace = currentPlaces.get(lineNumber);
                 }
             }
