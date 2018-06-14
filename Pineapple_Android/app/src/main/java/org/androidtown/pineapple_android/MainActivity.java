@@ -2,6 +2,7 @@ package org.androidtown.pineapple_android;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -23,7 +24,14 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.skt.Tmap.TMapGpsManager;
 
 import org.androidtown.pineapple_android.Model.FindTheWay;
@@ -48,24 +56,28 @@ public class MainActivity extends AppCompatActivity
         GoogleApiClient.OnConnectionFailedListener {
 
 
+    private static final int REQUEST_CHECK_SETTINGS_GPS = 0x1;
 
     @Override
     public void onLocationChange(Location location) {
         double lat = location.getLatitude();
         double lon = location.getLongitude();
-        navi.setFirstLocation(true);
+        if(lat>1 && !navi.isFirstLocation()) {
+            navi.setFirstLocation(true);
+            Log.d("onLocationChange","setFirstLocation");
+        }
 
         //GPS가 활성화되면 GPS이미지뷰를 Visible로 바꾸기
-        if(gpsImageView != null) {
+        if(gpsImageView != null && gpsImageView.getVisibility()!=View.VISIBLE) {
             gpsImageView.setVisibility(View.VISIBLE);
         }
 
         firebaseHelper.updateCurrentLocation(lat,lon);
 
-        navi.setPreX(navi.getCurrentX());
-        navi.setPreY(navi.getCurrentY());
         navi.setCurrentX(lon);
         navi.setCurrentY(lat);
+        navi.setPreX(navi.getCurrentX());
+        navi.setPreY(navi.getCurrentY());
 
         if(navi.calcAngle()) {
             try {
@@ -78,12 +90,19 @@ public class MainActivity extends AppCompatActivity
 
         if(navi.isStarted()){
             navi.stateCheck(lat,lon);
+            if(navi.getPrePlace()!=null){
+                firebaseHelper.addTrainData(new TrainData(
+                        navi.getPrePlace().getY(),navi.getPrePlace().getX(),
+                        navi.getCurrentPlace().getY(),navi.getCurrentPlace().getX(),
+                        navi.getCurrentY(),navi.getCurrentX()));
+            }
             if(navi.getLeaveWayCount()>0){//거리가 멀어진 경우
                 //진동모터
+                bluetoothHelper.sendData("700");
             }
             naviTextView.append("f : " + navi.getFeatureNumber() + " dis : " + navi.getDistance() + " angle : " +
                     (int)navi.getDestinationAngle() + "\n");
-        }else if(navi.isdSync() && !navi.issSync()){ //네비 시작 x, 목적지 o, 시작위치 o
+        }else if(navi.isdSync() && !navi.issSync() && navi.isFirstLocation()){ //네비 시작 x, 목적지 o, 시작위치 o
             navi.setsSync(true);
             loadAnswer(navi.getEndX(),navi.getEndY());
         }
@@ -107,6 +126,7 @@ public class MainActivity extends AppCompatActivity
     public static ImageView bluetoothImageView;
     public static ImageView helpImageView;
 
+    private GpsInfoService gps1;
     private GoogleApiClient googleApiClient;
 
 
@@ -199,6 +219,7 @@ public class MainActivity extends AppCompatActivity
         //RetrofitService 초기화
         mService = ApiUtils.getRetrofitService();
 
+        gps1 = new GpsInfoService(MainActivity.this);
         //gps 퍼미션, gps객체 초기화
 //        if(!checkLocationPermission()) {
 //            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
@@ -235,23 +256,79 @@ public class MainActivity extends AppCompatActivity
         if(!checkLocationPermission()) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }else {
-            if(googleApiClient != null && googleApiClient.isConnected()) {
-                GpsInfoService gps = new GpsInfoService(this);
-                if (gps.isGetLocation()) {
-                    navi.setCurrentX(gps.getLongitude());
-                    navi.setCurrentY(gps.getLatitude());
-                    navi.setFirstLocation(true);
-                } else {
-                    gps.showSettingsAlert(); //gps 꺼져있을 시에 실행부분
-                }
-
-                gps2 = new TMapGpsManager(this);
-                gps2.setMinTime(1000);
-                gps2.setMinDistance(5);
-                gps2.setProvider(gps2.GPS_PROVIDER);
-                gps2.OpenGps();
-            }
+            getMyLocation();
         }
+    }
+
+    public void getMyLocation(){
+        if(googleApiClient != null && googleApiClient.isConnected()) {
+            LocationRequest locationRequest = new LocationRequest();
+            locationRequest.setInterval(3000);
+            locationRequest.setFastestInterval(3000);
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                    .addLocationRequest(locationRequest);
+
+            builder.setAlwaysShow(true);
+
+            PendingResult<LocationSettingsResult> result =
+                    LocationServices.SettingsApi
+                            .checkLocationSettings(googleApiClient, builder.build());
+            result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+
+                @Override
+                public void onResult(LocationSettingsResult result) {
+                    final Status status = result.getStatus();
+                    switch (status.getStatusCode()) {
+                        case LocationSettingsStatusCodes.SUCCESS:
+                            // All location settings are satisfied.
+                            // You can initialize location requests here.
+                            int permissionLocation = ContextCompat
+                                    .checkSelfPermission(MainActivity.this,
+                                            Manifest.permission.ACCESS_FINE_LOCATION);
+                            if (permissionLocation == PackageManager.PERMISSION_GRANTED) {
+                                for(int i=0;i<10;i++) {
+                                    Location location = gps1.getLocation();
+                                    if (!navi.isFirstLocation() && gps1.isGetLocation() && location!=null) {
+                                        navi.setCurrentX(gps1.getLongitude());
+                                        navi.setCurrentY(gps1.getLatitude());
+                                        navi.setFirstLocation(true);
+                                        Log.d("GpsInfoService", "setFirstLocation");
+                                        gpsImageView.setVisibility(View.VISIBLE);
+                                    }
+                                }
+                            }
+                            gps2 = new TMapGpsManager(MainActivity.this);
+                            gps2.setMinTime(1000);
+                            gps2.setMinDistance(5);
+                            gps2.setProvider(gps2.GPS_PROVIDER);
+                            gps2.OpenGps();
+                            break;
+                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                            // Location settings are not satisfied.
+                            // But could be fixed by showing the user a dialog.
+                            try {
+                                // Show the dialog by calling startResolutionForResult(),
+                                // and check the result in onActivityResult().
+                                // Ask to turn on GPS
+                                status.startResolutionForResult(MainActivity.this, REQUEST_CHECK_SETTINGS_GPS);
+                            } catch (IntentSender.SendIntentException e) {
+                                // Ignore the error.
+                            }
+                            break;
+                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                            // Location settings are not satisfied.
+                            // However, we have no way
+                            // to fix the
+                            // settings so we won't show the dialog.
+                            //finish();
+                            Toast.makeText(MainActivity.this, "NOT SATISFIED", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+            });
+        }
+
     }
 
     @Override
@@ -337,6 +414,13 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
+            case REQUEST_CHECK_SETTINGS_GPS:
+                if(resultCode==0) { //취소
+                    finish();
+                }else if(resultCode == -1){
+                    getMyLocation();
+                }
+                break;
             //음성인식이 완료되었을 때
             case REQ_CODE_SPEECH_INPUT :
                 VoiceRecognizer.isAvailable = true; //음성입력이 다시 가능하게 하도록 set
@@ -521,23 +605,7 @@ public class MainActivity extends AppCompatActivity
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(googleApiClient !=null && googleApiClient.isConnected()) {
-                        GpsInfoService gps = new GpsInfoService(this);
-                        if (gps.isGetLocation()) {
-                            navi.setCurrentX(gps.getLongitude());
-                            navi.setCurrentY(gps.getLatitude());
-                            navi.setFirstLocation(true);
-                        } else {
-                            gps.showSettingsAlert(); //gps 꺼져있을 시에 실행부분
-                        }
-
-
-                        gps2 = new TMapGpsManager(this);
-                        gps2.setMinTime(1000 * 5);
-                        gps2.setMinDistance(5);
-                        gps2.setProvider(gps2.GPS_PROVIDER);
-                        gps2.OpenGps();
-                    }
+                    getMyLocation();
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.

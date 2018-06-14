@@ -6,22 +6,25 @@ package org.androidtown.pineapple_android;
 
 public class TrainData {
 
+
+    double prevLatitude;
+    double prevLongitude;
     double dstLatitude;
     double dstLongitude;
     double currentLatitude;
     double currentLongitude;
-    boolean offThePath; //경로 이탈
 
     public TrainData(){
 
     }
 
-    public TrainData(double dstLatitude, double dstLongitude, double currentLatitude, double currentLongitude, boolean offThePath) {
+    public TrainData(double prevLatitude, double prevLongitude, double dstLatitude, double dstLongitude, double currentLatitude, double currentLongitude) {
+        this.prevLatitude = prevLatitude;
+        this.prevLongitude = prevLongitude;
         this.dstLatitude = dstLatitude;
         this.dstLongitude = dstLongitude;
         this.currentLatitude = currentLatitude;
         this.currentLongitude = currentLongitude;
-        this.offThePath = offThePath;
     }
 
     public double getDstLatitude() {
@@ -56,11 +59,4 @@ public class TrainData {
         this.currentLongitude = currentLongitude;
     }
 
-    public boolean isOffThePath() {
-        return offThePath;
-    }
-
-    public void setOffThePath(boolean offThePath) {
-        this.offThePath = offThePath;
-    }
 }
