@@ -17,8 +17,13 @@
       <file leaf-file-name="LSTM2.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/LSTM2.py">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="441">
               <caret line="156" lean-forward="true" selection-start-line="156" selection-end-line="156" />
+=======
+            <state relative-caret-position="191">
+              <caret line="146" column="37" lean-forward="true" selection-start-line="146" selection-start-column="37" selection-end-line="146" selection-end-column="37" />
+>>>>>>> 9b21b96ae4967cde241ceacde56d310e2b0e3cff
               <folding>
                 <element signature="e#454#491#0" expanded="true" />
               </folding>
@@ -80,7 +85,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="180" />
     <option name="y" value="95" />
     <option name="width" value="1750" />
@@ -183,11 +188,21 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
+<<<<<<< HEAD
     <frame x="-6" y="-6" width="1549" height="837" extended-state="6" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22511385" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5003253" side_tool="true" weight="0.43767706" />
+=======
+    <frame x="-7" y="-7" width="1550" height="838" extended-state="7" />
+    <editor active="true" />
+    <layout>
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22460938" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32689655" />
+>>>>>>> 9b21b96ae4967cde241ceacde56d310e2b0e3cff
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Console" order="7" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49967468" weight="0.43767706" />
@@ -210,8 +225,13 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/LSTM2.py">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="3059">
           <caret line="161" column="33" lean-forward="true" selection-start-line="161" selection-start-column="33" selection-end-line="161" selection-end-column="33" />
+=======
+        <state relative-caret-position="988">
+          <caret line="52" column="16" lean-forward="true" selection-start-line="52" selection-start-column="16" selection-end-line="52" selection-end-column="16" />
+>>>>>>> 9b21b96ae4967cde241ceacde56d310e2b0e3cff
           <folding>
             <element signature="e#454#491#0" expanded="true" />
           </folding>
@@ -220,7 +240,7 @@
     </entry>
     <entry file="file://C:/Program Files/Python35/Lib/site-packages/tensorflow/python/client/session.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="21090">
+        <state relative-caret-position="20691">
           <caret line="1110" selection-start-line="1110" selection-end-line="1110" />
         </state>
       </provider>
@@ -232,8 +252,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/LSTM2.py">
+    <entry file="file://$PROJECT_DIR$/LSTM.py" />
+    <entry file="file://C:/Program Files/Python35/Lib/site-packages/tensorflow/python/client/session.py">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="988">
           <caret line="52" column="16" lean-forward="true" selection-start-line="52" selection-start-column="16" selection-end-line="52" selection-end-column="16" />
           <folding>
@@ -253,6 +275,27 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="23351">
           <caret line="1229" selection-start-line="1229" selection-end-line="1229" />
+=======
+        <state relative-caret-position="21090">
+          <caret line="1110" selection-start-line="1110" selection-end-line="1110" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Program Files/Python35/Lib/site-packages/tensorflow/python/ops/rnn.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23028">
+          <caret line="1229" selection-start-line="1229" selection-end-line="1229" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LSTM2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2527">
+          <caret line="142" lean-forward="true" selection-start-line="142" selection-end-line="142" />
+          <folding>
+            <element signature="e#454#491#0" expanded="true" />
+          </folding>
+>>>>>>> 9b21b96ae4967cde241ceacde56d310e2b0e3cff
         </state>
       </provider>
     </entry>
@@ -282,6 +325,7 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/LSTM.py" />
+<<<<<<< HEAD
     <entry file="file://C:/Program Files/Python35/Lib/site-packages/tensorflow/python/client/session.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="20691">
@@ -290,12 +334,16 @@
       </provider>
     </entry>
     <entry file="file://C:/Program Files/Python35/Lib/site-packages/tensorflow/python/ops/rnn.py">
+=======
+    <entry file="file://$PROJECT_DIR$/LSTM2.py">
+>>>>>>> 9b21b96ae4967cde241ceacde56d310e2b0e3cff
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="23028">
           <caret line="1229" selection-start-line="1229" selection-end-line="1229" />
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/LSTM2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2223">
@@ -306,6 +354,8 @@
         </state>
       </provider>
     </entry>
+=======
+>>>>>>> 9b21b96ae4967cde241ceacde56d310e2b0e3cff
     <entry file="file://$PROJECT_DIR$/LSTM.py" />
     <entry file="file://$PROJECT_DIR$/LSTM2.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -318,6 +368,7 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/LSTM.py" />
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/LSTM2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2451">
@@ -329,6 +380,8 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/LSTM.py" />
+=======
+>>>>>>> 9b21b96ae4967cde241ceacde56d310e2b0e3cff
     <entry file="file://$PROJECT_DIR$/LSTM2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1786">
@@ -372,8 +425,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/LSTM2.py">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="441">
           <caret line="156" lean-forward="true" selection-start-line="156" selection-end-line="156" />
+=======
+        <state relative-caret-position="191">
+          <caret line="146" column="37" lean-forward="true" selection-start-line="146" selection-start-column="37" selection-end-line="146" selection-end-column="37" />
+>>>>>>> 9b21b96ae4967cde241ceacde56d310e2b0e3cff
           <folding>
             <element signature="e#454#491#0" expanded="true" />
           </folding>

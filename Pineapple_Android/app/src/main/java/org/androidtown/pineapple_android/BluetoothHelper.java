@@ -105,7 +105,7 @@ public class BluetoothHelper {
     //Integer 형태로 데이터 전송
     public void sendData(int inputData){
         if(bluetoothSocket == null || !bluetoothSocket.isConnected()) {
-            Toast.makeText(context, R.string.bluetooth_device_not_found, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, R.string.bluetooth_device_not_found, Toast.LENGTH_SHORT).show();
             return;
         }
         //outputStream을 통해 데이터 전송
@@ -120,7 +120,7 @@ public class BluetoothHelper {
     //byte[] 형태로 데이터 전송
     public void sendData(String inputString){
         if(bluetoothSocket == null || !bluetoothSocket.isConnected()) {
-            Toast.makeText(context, R.string.bluetooth_not_found, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, R.string.bluetooth_not_found, Toast.LENGTH_SHORT).show();
             return;
         }
 

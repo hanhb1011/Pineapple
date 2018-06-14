@@ -33,6 +33,9 @@ public class GpsInfoService extends Service implements LocationListener {
     // GPS 상태값
     boolean isGetLocation = false;
 
+    boolean isFirstLocation = false;
+
+
     Location location;
     double lat; // 위도
     double lon; // 경도
@@ -107,12 +110,22 @@ public class GpsInfoService extends Service implements LocationListener {
                         }
                     }
                 }
+                //동기화
+                isFirstLocation = true;
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
         return location;
+    }
+
+    public boolean isFirstLocation() {
+        return isFirstLocation;
+    }
+
+    public void setFirstLocation(boolean firstLocation) {
+        isFirstLocation = firstLocation;
     }
 
     /**

@@ -50,6 +50,8 @@ public class MainHandler extends Handler {
                 if(navi.isFirstLocation()){
                     navi.setsSync(true);
                     ((MainActivity)context).loadAnswer(navi.getEndX(),navi.getEndY());
+                }else{
+                    ((MainActivity)context).getMyLocation();
                 }
                 break;
 

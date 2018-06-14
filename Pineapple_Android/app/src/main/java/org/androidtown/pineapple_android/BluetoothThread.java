@@ -38,6 +38,8 @@ public class BluetoothThread extends Thread{
         while(isOn) {
 
             try {
+                sleep(1000);
+
                 byte[] buffer = new byte[256];
                 int bytes;
                 String inputString;
@@ -58,11 +60,9 @@ public class BluetoothThread extends Thread{
                     ((MainActivity)context).inputSpeechProcess(); //입력받을 경우 STT 메서드 실행
                 }
 
-                sleep(1000);
-
 
             } catch (Exception e){
-                e.printStackTrace();
+                //e.printStackTrace();
             }
 
         }
