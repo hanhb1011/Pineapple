@@ -94,7 +94,7 @@ public class VoiceRecognizer {
         //우선 의도에 따른 키워드를 분류한다
         List<String> ADJECTIVE_KEYWORDS = Arrays.asList("가까운", "근처");
         List<String> DESTINATION_KEYWORDS = Arrays.asList("안내해", "어딨", "어디", "어떻게", "알려", "찾아");
-        List<String> CANCELLATION_KEYWORDS = Arrays.asList("중단", "그만", "중지", "취소");
+        List<String> CANCELLATION_KEYWORDS = Arrays.asList("중단", "그만", "중지", "취소", "꺼", "종료");
         List<String> CHATLOG_KEYWORDS = Arrays.asList("기록","채팅","로그");
         List<String> MAP_KEYWORDS = Arrays.asList("맵", "지도");
         List<String> MESSAGE_START_KEYWORDS = Arrays.asList("보호자", "보호자에게","보호자한테");

@@ -151,3 +151,12 @@ with tf.Session() as sess:
 
     print(sess.run(prediction, feed_dict={X: [[[129.21091504368758,34.26426359714899,129.2109475784393,34.264443489735775,129.21091291235834,34.264261465819736]]]}))
 
+
+    #test.pb로 protobuffer 저장
+    tf.train.write_graph(sess.graph_def,"./","test.pb", False)
+
+
+    #체크
+    g = tf.GraphDef()
+    g.ParseFromString(open("test.pb", "rb").read())
+    print([n.op for n in g.node])
