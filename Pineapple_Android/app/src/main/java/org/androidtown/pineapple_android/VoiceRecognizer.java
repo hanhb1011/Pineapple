@@ -7,7 +7,10 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Bundle;
+import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.widget.Toast;
 
 import java.util.Arrays;
@@ -28,6 +31,7 @@ public class VoiceRecognizer {
     private Context context;
     public static boolean isAvailable = true; // 실행 중인 음성 입력 액티비티가 없을 때만 사용 가능하도록
 
+
     public VoiceRecognizer(Context context) {
         this.context = context;
 
@@ -47,17 +51,22 @@ public class VoiceRecognizer {
 
     //음성 입력을 받는다
     public void inputSpeech() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+//        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+//
+//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+//        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, context.getString(R.string.speech_prompt));
 
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, context.getString(R.string.speech_prompt));
+
 
         try {
             if(isAvailable) {
-                isAvailable = false;
+//                isAvailable = false;
                 //Critical section
-                ((Activity) context).startActivityForResult(intent, GroupConstants.REQ_CODE_SPEECH_INPUT);
+                //((Activity) context).startActivityForResult(intent, GroupConstants.REQ_CODE_SPEECH_INPUT);
+
+                CustomizedSTT customizedSTT = new CustomizedSTT(context);
+                customizedSTT.startListening();
 
             }
         } catch (ActivityNotFoundException a) {
