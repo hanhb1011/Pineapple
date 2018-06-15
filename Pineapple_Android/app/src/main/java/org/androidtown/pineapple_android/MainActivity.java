@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity
 
     private View micImageView;
     private TextView speechTextView;
-    private TextView responseTextView;
+    public static TextView responseTextView;
     public TextView testTextView;
     public TextView naviTextView;
     private BluetoothHelper bluetoothHelper;
@@ -152,11 +152,8 @@ public class MainActivity extends AppCompatActivity
     public static ImageView gpsImageView;
     public static ImageView bluetoothImageView;
     public static ImageView helpImageView;
-
     private GpsInfoService gps1;
     private GoogleApiClient googleApiClient;
-
-
 
     TMapGpsManager gps2=null;
 
@@ -235,6 +232,7 @@ public class MainActivity extends AppCompatActivity
 
     private void init() {
         setupGClient();
+        requestRecordAudioPermission();
 
         //TextToSpeech 초기화
         tts = getTTSInstance();
@@ -308,6 +306,7 @@ public class MainActivity extends AppCompatActivity
             getMyLocation();
         }
     }
+
 
     public void getMyLocation(){
         if(googleApiClient != null && googleApiClient.isConnected()) {
@@ -387,7 +386,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult){
-        
+
     }
 
     //뷰 바인딩
@@ -470,9 +469,9 @@ public class MainActivity extends AppCompatActivity
                     getMyLocation();
                 }
                 break;
+
             //음성인식이 완료되었을 때
             case REQ_CODE_SPEECH_INPUT :
-                VoiceRecognizer.isAvailable = true; //음성입력이 다시 가능하게 하도록 set
 
                 //check validity
                 if(resultCode!=RESULT_OK || data == null)
@@ -481,71 +480,79 @@ public class MainActivity extends AppCompatActivity
                 ArrayList<String> result = data
                         .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 
-                //입력, 응답 스트링 정의, update UI : 스트링빌더로 성능향상 유도
-                StringBuilder speech = new StringBuilder("\"");
-                if(result.size()>0)
-                    speech.append(result.get(0)).append("\"");
-                speechTextView.setText(speech.toString());
-
-                //메시지 리스트에 메시지 추가 (채팅 로그)
-                addMessageToList(GroupConstants.MY_MESSAGE, speech.toString());
-
-                StringBuilder response = new StringBuilder("\"");
-
-                //문장을 처리해서 의도와 목적지를 파악한다.
-                Pair<Integer, String> resultPair = voiceRecognizer.process(result.get(0));
-
-                switch (resultPair.first) {
-                    case GroupConstants.INTENTION_DESTINATION :
-
-                        if(navi.isFirstLocation()) {
-                            response.append(resultPair.second);
-                            response.append("안내를 시작합니다.\"");
-                            tmap.getPOIItem(resultPair.second); //네비게이션 시작
-                        } else {
-                            response.append("위치정보를 받아올 수 없습니다.\n 잠시 뒤에 실행해주세요.\"");
-                        }
-                        break;
-                    case GroupConstants.INTENTION_CANCELLATION :
-                        response.append("안내를 중단합니다.\"");
-                        if(Navigation.getInstance().isStarted()) {
-                            Navigation.getInstance().terminate();
-                        }
-                        break;
-
-                    case GroupConstants.INTENTION_INVALID :
-                        response.append("다시 한 번 말씀해주세요.\"");
-                        break;
-
-                    case GroupConstants.INTENTION_CHATLOG :
-                        response.append("채팅 기록.\"");
-                        ChatLogFragment chatLogFragment = new ChatLogFragment();
-                        chatLogFragment.show(getFragmentManager(),"");
-                        break;
-
-                    case GroupConstants.INTENTION_MAP :
-                        response.append("지도.\"");
-                        PathFragment pathFragment = new PathFragment();
-                        pathFragment.show(getFragmentManager(),"");
-                        break;
-
-                    case GroupConstants.INTENTION_SEND_MESSAGE :
-                        response.append(resultPair.second+". 라고 전송했습니다.\"");
-                        firebaseHelper.sendMessageToCareTaker(resultPair.second);
-                        break;
+                if(result.size() > 0) {
+                    VoiceRecognizer.isAvailable = true; //음성입력이 다시 가능하게 하도록 set
+                    inferSentence(result.get(0));
                 }
 
-
-                //응답 출력
-                responseTextView.setText(response.toString());
-
-                //메시지 리스트에 응답메시지 추가
-                addMessageToList(GroupConstants.BOT_MESSAGE, response.toString());
-
-                //음성 출력
-                speak(response.substring(1, response.length() - 1));
-
+                break;
         }
+
+    }
+
+    public void inferSentence(String sentence) {
+        //입력, 응답 스트링 정의, update UI : 스트링빌더로 성능향상 유도
+        StringBuilder speech = new StringBuilder("\"");
+        speech.append(sentence).append("\"");
+        speechTextView.setText(speech.toString());
+
+        //메시지 리스트에 메시지 추가 (채팅 로그)
+        addMessageToList(GroupConstants.MY_MESSAGE, speech.toString());
+
+        StringBuilder response = new StringBuilder("\"");
+
+        //문장을 처리해서 의도와 목적지를 파악한다.
+        Pair<Integer, String> resultPair = voiceRecognizer.process(sentence);
+
+        switch (resultPair.first) {
+            case GroupConstants.INTENTION_DESTINATION :
+
+                if(navi.isFirstLocation()) {
+                    response.append(resultPair.second);
+                    response.append("안내를 시작합니다.\"");
+                    tmap.getPOIItem(resultPair.second); //네비게이션 시작
+                } else {
+                    response.append("위치정보를 받아올 수 없습니다.\n 잠시 뒤에 실행해주세요.\"");
+                }
+                break;
+            case GroupConstants.INTENTION_CANCELLATION :
+                response.append("안내를 중단합니다.\"");
+                if(Navigation.getInstance().isStarted()) {
+                    Navigation.getInstance().terminate();
+                }
+                break;
+
+            case GroupConstants.INTENTION_INVALID :
+                response.append("다시 한 번 말씀해주세요.\"");
+                break;
+
+            case GroupConstants.INTENTION_CHATLOG :
+                response.append("채팅 기록.\"");
+                ChatLogFragment chatLogFragment = new ChatLogFragment();
+                chatLogFragment.show(getFragmentManager(),"");
+                break;
+
+            case GroupConstants.INTENTION_MAP :
+                response.append("지도.\"");
+                PathFragment pathFragment = new PathFragment();
+                pathFragment.show(getFragmentManager(),"");
+                break;
+
+            case GroupConstants.INTENTION_SEND_MESSAGE :
+                response.append(resultPair.second+". 라고 전송했습니다.\"");
+                firebaseHelper.sendMessageToCareTaker(resultPair.second);
+                break;
+        }
+
+
+        //응답 출력
+        responseTextView.setText(response.toString());
+
+        //메시지 리스트에 응답메시지 추가
+        addMessageToList(GroupConstants.BOT_MESSAGE, response.toString());
+
+        //음성 출력
+        speak(response.substring(1, response.length() - 1));
 
     }
 
@@ -589,7 +596,6 @@ public class MainActivity extends AppCompatActivity
                         tts.speak("반갑습니다.", TextToSpeech.QUEUE_ADD, null, utteranceId);
 
                     }
-
                 } else {
                     Toast.makeText(MainActivity.this, "TTS Init Failed", Toast.LENGTH_SHORT).show();
                 }
@@ -697,5 +703,17 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+    }
+
+    private void requestRecordAudioPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String requiredPermission = Manifest.permission.RECORD_AUDIO;
+
+            // If the user previously denied this permission then show a message explaining why
+            // this permission is needed
+            if (checkCallingOrSelfPermission(requiredPermission) == PackageManager.PERMISSION_DENIED) {
+                requestPermissions(new String[]{requiredPermission}, 101);
+            }
+        }
     }
 }
