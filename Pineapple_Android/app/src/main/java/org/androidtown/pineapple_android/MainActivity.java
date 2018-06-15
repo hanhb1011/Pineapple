@@ -40,6 +40,7 @@ import org.androidtown.pineapple_android.Util.ApiUtils;
 import org.androidtown.pineapple_android.Util.GpsInfoService;
 import org.androidtown.pineapple_android.Util.Navigation;
 import org.androidtown.pineapple_android.Util.NavigationBody;
+import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -62,6 +63,9 @@ public class MainActivity extends AppCompatActivity
     public void onLocationChange(Location location) {
         double lat = location.getLatitude();
         double lon = location.getLongitude();
+
+
+
         if(lat>1 && !navi.isFirstLocation()) {
             navi.setFirstLocation(true);
             Log.d("onLocationChange","setFirstLocation");
@@ -96,10 +100,33 @@ public class MainActivity extends AppCompatActivity
                         navi.getCurrentPlace().getY(),navi.getCurrentPlace().getX(),
                         navi.getCurrentY(),navi.getCurrentX()));
             }
-            if(navi.getLeaveWayCount()>0){//거리가 멀어진 경우
-                //진동모터
+
+            tensorflowInput[0] = (float)navi.getPrePlace().getX(); //이전노드 x
+            tensorflowInput[1] = (float)navi.getPrePlace().getY(); //이전노드 y
+            tensorflowInput[2] = (float)navi.getCurrentPlace().getX(); //다음노드 x
+            tensorflowInput[3] = (float)navi.getCurrentPlace().getY(); //다음노드 y
+            tensorflowInput[4] = (float)navi.getCurrentX(); //현재위치 x
+            tensorflowInput[5] = (float)navi.getCurrentY(); //현재위치 y
+
+
+            tensorflow.feed("I", tensorflowInput,1,1,6);
+            tensorflow.run(outputNames);
+            tensorflow.fetch(outputNames[0],tensorflowOutput);
+
+            if(tensorflowOutput[0] > tensorflowOutput[1]) { //이탈한 경우
                 bluetoothHelper.sendData("700");
             }
+
+//            if(navi.getLeaveWayCount()>0){//거리가 멀어진 경우
+//                //진동모터
+//                bluetoothHelper.sendData("700");
+//            }
+
+
+
+
+
+
             naviTextView.append("f : " + navi.getFeatureNumber() + " dis : " + navi.getDistance() + " angle : " +
                     (int)navi.getDestinationAngle() + "\n");
         }else if(navi.isdSync() && !navi.issSync() && navi.isFirstLocation()){ //네비 시작 x, 목적지 o, 시작위치 o
@@ -136,10 +163,28 @@ public class MainActivity extends AppCompatActivity
     FindTheWay mWay;
     public static Navigation navi;
 
+
+    private TensorFlowInferenceInterface tensorflow;
+    private float[] tensorflowInput;
+    private float[] tensorflowOutput;
+    private String[] outputNames = {"O"};
+
+//    TensorFlowInferenceInterface tensorflow = new TensorFlowInferenceInterface(getAssets(), "file:///android_asset/optimized_test2.pb");
+//    float[] input = {129.210915043687f,34.2642635971489f,129.210947578439f,34.2644434897357f,129.210912912358f,34.2642614658197f};
+//        tensorflow.feed("I",input,1,1,6);
+//
+//    float[] output = new float[2];
+//    String[] outputNames = {"O"};
+//    tensorflow.run(outputNames);
+//    tensorflow.fetch(outputNames[0],output);
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         initView();
         init();
@@ -219,6 +264,10 @@ public class MainActivity extends AppCompatActivity
         mService = ApiUtils.getRetrofitService();
 
         gps1 = new GpsInfoService(MainActivity.this);
+
+        tensorflow = new TensorFlowInferenceInterface(getAssets(), "file:///android_asset/optimized_test2.pb");
+        tensorflowInput = new float[6];
+        tensorflowOutput = new float[2];
         //gps 퍼미션, gps객체 초기화
 //        if(!checkLocationPermission()) {
 //            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);

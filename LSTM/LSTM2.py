@@ -7,14 +7,19 @@ Links:
 Author: Aymeric Damien
 Project: https://github.com/aymericdamien/TensorFlow-Examples/
 """
-
 from __future__ import print_function
+
+import sys
+
+from tensorflow.python.tools import freeze_graph
+from tensorflow.python.tools import optimize_for_inference_lib
 
 import tensorflow as tf
 from tensorflow.contrib import rnn
 
 import csv
 
+MODEL_NAME = 'test2'
 
 
 """
@@ -37,16 +42,17 @@ timesteps = 1
 num_hidden = 128 # hidden layer num of features
 num_classes = 2 # MNIST total classes (0-9 digits)
 
+
 # tf Graph input
-X = tf.placeholder("float", [None, timesteps, num_input])
-Y = tf.placeholder("float", [None, num_classes])
+X = tf.placeholder(tf.float32, [None, timesteps, num_input], name='I')
+Y = tf.placeholder(tf.float32, [None, num_classes])
 
 # Define weights
 weights = {
-    'out': tf.Variable(tf.random_normal([num_hidden, num_classes]))
+    'out': tf.Variable(tf.random_normal([num_hidden, num_classes], dtype=tf.float32), name='W')
 }
 biases = {
-    'out': tf.Variable(tf.random_normal([num_classes]))
+    'out': tf.Variable(tf.random_normal([num_classes], dtype=tf.float32), name='b')
 }
 
 
@@ -71,7 +77,7 @@ def RNN(x, weights, biases):
 
 
 logits = RNN(X, weights, biases)
-prediction = tf.nn.softmax(logits)
+prediction = tf.nn.softmax(logits, name='O')
 
 # Define loss and optimizer
 loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
@@ -85,12 +91,14 @@ accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
-
+saver = tf.train.Saver()
 # Start training
 with tf.Session() as sess:
 
     # Run the initializer
     sess.run(init)
+
+    tf.train.write_graph(sess.graph_def, '.', 'test2.pbtxt')
 
     data = []
     with open('trainingData.csv', 'r') as csvfile:
@@ -126,6 +134,7 @@ with tf.Session() as sess:
         else:
             batch_y.append([0, 1])
 
+    saver.save(sess, './test2.ckpt')
     print("Optimization Finished!")
 
 
@@ -151,12 +160,59 @@ with tf.Session() as sess:
 
     print(sess.run(prediction, feed_dict={X: [[[129.21091504368758,34.26426359714899,129.2109475784393,34.264443489735775,129.21091291235834,34.264261465819736]]]}))
 
+input_graph_path = MODEL_NAME+'.pbtxt'
+checkpoint_path = './'+MODEL_NAME+'.ckpt'
+input_saver_def_path = ""
+input_binary = False
+output_node_names = "O"
+restore_op_name = "save/restore_all"
+filename_tensor_name = "save/Const:0"
+output_frozen_graph_name = 'frozen_'+MODEL_NAME+'.pb'
+output_optimized_graph_name = 'optimized_'+MODEL_NAME+'.pb'
+clear_devices = True
 
-    #test.pb로 protobuffer 저장
-    tf.train.write_graph(sess.graph_def,"./","test.pb", False)
+
+freeze_graph.freeze_graph(input_graph_path, input_saver_def_path,
+                          input_binary, checkpoint_path, output_node_names,
+                          restore_op_name, filename_tensor_name,
+                          output_frozen_graph_name, clear_devices, "")
 
 
-    #체크
-    g = tf.GraphDef()
-    g.ParseFromString(open("test.pb", "rb").read())
-    print([n.op for n in g.node])
+
+# Optimize for inference
+
+input_graph_def = tf.GraphDef()
+with tf.gfile.Open(output_frozen_graph_name, "rb") as f:
+    data = f.read()
+    input_graph_def.ParseFromString(data)
+
+
+output_graph_def = optimize_for_inference_lib.optimize_for_inference(
+        input_graph_def,
+        ['I'], # an array of the input node(s)
+        ['O'], # an array of output nodes
+        tf.float32.as_datatype_enum)
+
+# Save the optimized graph
+
+f = tf.gfile.FastGFile(output_optimized_graph_name, "w")
+f.write(output_graph_def.SerializeToString())
+
+
+print(output_graph_def)
+
+# tf.train.write_graph(output_graph_def, './', output_optimized_graph_name)
+
+
+
+
+
+##########
+
+# #test.pb로 protobuffer 저장
+    # tf.train.write_graph(sess.graph_def,"./","test.pb", False)
+    #
+    # #체크
+    # g = tf.GraphDef()
+    # g.ParseFromString(open("test.pb", "rb").read())
+    # print([n for n in g.node])

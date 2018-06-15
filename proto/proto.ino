@@ -99,56 +99,9 @@ void wrong_vib(int b){
   delay(3000);   
   analogWrite(7, 0);
   }
-  
-  else if(b == 800){
-  analogWrite(7, 200);                     
-  delay(1000);   
-  analogWrite(7 , 0);
-  }
 }
 
 int compass(){
-  /*
-  int x,y,z; //triple axis data
-  double angle;
-  
-  Wire.beginTransmission(address);
-  Wire.write(0x03);
-  Wire.endTransmission();
- 
-
-  Wire.requestFrom(address, 6);
-  if(6<=Wire.available()){
-    x = Wire.read()<<8; //X msb
-    x |= Wire.read(); //X lsb
-    z = Wire.read()<<8; //Z msb
-    z |= Wire.read(); //Z lsb
-    y = Wire.read()<<8; //Y msb
-    y |= Wire.read(); //Y lsb
-  }  
-  angle = (double)atan2(y, x);
-  
-  float declinationAngle = -(8+26/60)*PI/180; 
-  angle += declinationAngle; 
-
-  if (angle < 0){
-    angle += 2*PI;
-  }
-
-  if (angle > 2*PI){
-    angle -= 2*PI;
-  }
-  
-  float bearing = angle * 180/PI;
-  
-  Serial.println("Azimuth : "+String(bearing));
-
-  angle = 0;
-  bearing = 0;
-
-  delay(500);
-  */
-  
   mag.getHeading(&mx, &my, &mz);
   float heading = atan2(my, mx);
   if(heading < 0)
@@ -158,32 +111,6 @@ int compass(){
   Serial.println((int)heading2);
   
   return heading2;
-  
-    /*
-  int x,y,z;
-  int a;
-
-  qmc.read(&x,&y,&z);
-  a = qmc.azimuth(&y,&x);
-  Serial.print("x: ");
-
-  Serial.print(x);
-
-  Serial.print(" y: ");
-
-  Serial.print(y);
-
-  Serial.print(" z: ");
-
-  Serial.print(z);
-
-  Serial.print(" a: ");
-  Serial.print(a);
-  Serial.println();
-  delay(100);
-
-  return a;
-  */
 }
 
 void init_motor(int a){
@@ -254,7 +181,7 @@ void loop(){
     }
   }
   
-  if(readSomething) {
+  if(readSomething && myString.toInt() <= 360 && 0 <= myString.toInt()) {
     input_angle = myString.toInt();
   }
   
