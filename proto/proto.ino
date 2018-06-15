@@ -4,6 +4,7 @@
 #include <EEPROM.h>
 #include <I2Cdev.h>
 #include <HMC5883L.h>
+//#include <MechaQMC5883.h>
 #define address 0x1E
 //#include <LowPower.h>
 
@@ -25,25 +26,27 @@ int wake2 = 1;
 HMC5883L mag;
 int16_t mx, my, mz;
 //int sleepPin = 6;
+//MechaQMC5883 qmc;
+int input_angle = -1;
 
 void setup(){
   pinMode(in1Pin,OUTPUT); pinMode(in2Pin,OUTPUT);
   pinMode(in3Pin,OUTPUT); pinMode(in4Pin,OUTPUT);
   pinMode(voiceRecoPin,INPUT);
   //pinMode(sleepPin, INPUT);
-  BTSerial.begin(9600); 
+  BTSerial.begin(9600);
+  Wire.begin();
   Serial.begin(9600);
   motor.setSpeed(300);
   mySerial.begin(9600);
   bufferPosition = 0; 
-  Wire.begin();
- /*
   Wire.beginTransmission(address);
   Wire.write(0x02); 
   Wire.write(0x00); 
   Wire.endTransmission();
-  */
   mag.initialize();
+  //qmc.init();
+  //qmc.setMode(Mode_Continuous,ODR_200Hz,RNG_2G,OSR_256);
   init_motor(EEPROM.read(wake2));
 }
 
@@ -86,7 +89,7 @@ void dir_cor(int dst_angle, int cur_angle){
    EEPROM.write(wake2, 1);
   } 
   
- int val = map(a,0,360,0,2048); 
+ int val = map(final_angle,0,360,0,2048); 
  motor.step(-val);
 }
 
@@ -145,20 +148,50 @@ int compass(){
 
   delay(500);
   */
+  
   mag.getHeading(&mx, &my, &mz);
   float heading = atan2(my, mx);
   if(heading < 0)
   heading += 2 * M_PI;
   float  heading2 = heading * 180/M_PI;
+  Serial.print("heading:\t");
+  Serial.println((int)heading2);
   
   return heading2;
+  
+    /*
+  int x,y,z;
+  int a;
+
+  qmc.read(&x,&y,&z);
+  a = qmc.azimuth(&y,&x);
+  Serial.print("x: ");
+
+  Serial.print(x);
+
+  Serial.print(" y: ");
+
+  Serial.print(y);
+
+  Serial.print(" z: ");
+
+  Serial.print(z);
+
+  Serial.print(" a: ");
+  Serial.print(a);
+  Serial.println();
+  delay(100);
+
+  return a;
+  */
 }
 
-void init_motor(){
+void init_motor(int a){
   int angle = EEPROM.read(wake);
   
   if(angle!=0){
-    int val2 = map(init_angle,0,360,0,2048);
+    int val2 = map(angle,0,360,0,2048);
+    
       if (a>0) {
     motor.step(-val2);
     }
@@ -221,10 +254,17 @@ void loop(){
     }
   }
   
+  if(readSomething) {
+    input_angle = myString.toInt();
+  }
+  
+  compass();
+  
+  delay(500);
   wrong_vib(myString.toInt()); 
   
-  if (myString.toInt() <= 360 && 0 <= myString.toInt() && readSomething){
-    dir_cor(myString.toInt(), compass());
+  if (myString.toInt() <= 360 && 0 <= myString.toInt() && input_angle != -1){
+    dir_cor(input_angle, compass());
    }
   
    /*
