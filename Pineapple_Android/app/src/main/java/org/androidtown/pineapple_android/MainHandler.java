@@ -3,6 +3,7 @@ package org.androidtown.pineapple_android;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
 import android.widget.Toast;
 
 import com.skt.Tmap.TMapPOIItem;
@@ -60,11 +61,19 @@ public class MainHandler extends Handler {
                 ((MainActivity)context).testTextView.append(s+"\n");
                 break;
             case GroupConstants.MSG_BLUETOOTH_CONNECTED :
-                //TODO 이미지뷰 전환
+                if(MainActivity.bluetoothImageView != null) {
+                    MainActivity.bluetoothImageView.setVisibility(View.VISIBLE);
+                }
                 break;
 
             case GroupConstants.MSG_BLUETOOTH_DISCONNECTED :
-                //TODO 이미지뷰 전환
+                if(MainActivity.bluetoothImageView != null) {
+                    MainActivity.bluetoothImageView.setVisibility(View.GONE);
+                }
+                break;
+
+            case GroupConstants.MSG_INPUT_SPEECH :
+                ((MainActivity)context).inputSpeechProcess();
                 break;
 
 

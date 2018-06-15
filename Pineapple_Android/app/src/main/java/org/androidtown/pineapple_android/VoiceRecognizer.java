@@ -30,10 +30,12 @@ public class VoiceRecognizer {
 
     private Context context;
     public static boolean isAvailable = true; // 실행 중인 음성 입력 액티비티가 없을 때만 사용 가능하도록
+    CustomizedSTT customizedSTT;
 
 
     public VoiceRecognizer(Context context) {
         this.context = context;
+        this.customizedSTT = new CustomizedSTT(context);
 
     }
 
@@ -57,15 +59,12 @@ public class VoiceRecognizer {
 //        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
 //        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, context.getString(R.string.speech_prompt));
 
-
-
         try {
             if(isAvailable) {
 //                isAvailable = false;
                 //Critical section
                 //((Activity) context).startActivityForResult(intent, GroupConstants.REQ_CODE_SPEECH_INPUT);
 
-                CustomizedSTT customizedSTT = new CustomizedSTT(context);
                 customizedSTT.startListening();
 
             }
@@ -109,6 +108,8 @@ public class VoiceRecognizer {
         List<String> MESSAGE_START_KEYWORDS = Arrays.asList("보호자", "보호자에게","보호자한테");
         List<String> MESSAGE_END_KEYWORDS = Arrays.asList("해","줘","말해", "보내", "라고해", "전송해", "해줘", "해주세요", "보내줘","보내주세요",
                 "말해줘", "말해주세요", "말해요", "보내요");
+        List<String> BLUETOOTH_KEYWORDS = Arrays.asList("블루투스", "블루", "투스");
+
 
         //문장을 단어별로 분리시킨다 -> String[]
         String[] words = sentence.split(" ");
@@ -167,7 +168,6 @@ public class VoiceRecognizer {
         for(String keyword : MAP_KEYWORDS) {
             for(String word : words) {
                 if(word.contains(keyword)) {
-                    //중단이라 판단
                     return new android.util.Pair<>(GroupConstants.INTENTION_MAP,  null);
                 }
             }
@@ -183,6 +183,17 @@ public class VoiceRecognizer {
                 }
             }
         }
+
+        //블루투스 활성화 (비활성화된 경우)
+        for(String keyword : BLUETOOTH_KEYWORDS) {
+            for(String word : words) {
+                if(word.contains(keyword)) {
+                    return new android.util.Pair<>(GroupConstants.INTENTION_BLUETOOTH,  null);
+                }
+            }
+        }
+
+
 
         //아무것도 아닌 경우 (Invalid 할 경우)
         return new android.util.Pair<>(GroupConstants.INTENTION_INVALID, null);

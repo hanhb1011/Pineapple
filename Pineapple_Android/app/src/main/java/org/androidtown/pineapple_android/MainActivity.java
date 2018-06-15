@@ -122,6 +122,7 @@ public class MainActivity extends AppCompatActivity
     public static User user;
     public static FirebaseHelper firebaseHelper;
     public static boolean speech = true;
+    public static boolean inputSpeech = true;
     public static ImageView gpsImageView;
     public static ImageView bluetoothImageView;
     public static ImageView helpImageView;
@@ -376,13 +377,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void inputSpeechProcess() {
+        if(!inputSpeech) {
+            return;
+        }
+
         //인터넷 연결을 확인하고, 연결이 되어있으면 서비스 실행
         if(voiceRecognizer.isConnectedToInternet()) {
+            inputSpeech = false;
             voiceRecognizer.inputSpeech(); //음성 입력을 받는다.
         } else {
             //연결이 되어있지 않으면 토스트 메시지 출력
             Toast.makeText(MainActivity.this, R.string.internet_connection_failed, Toast.LENGTH_SHORT).show();
         }
+
     }
 
     @Override
@@ -421,7 +428,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
 
-            //음성인식이 완료되었을 때
+            //음성인식이 완료되었을 때 (Deprecated)
             case REQ_CODE_SPEECH_INPUT :
 
                 //check validity
@@ -493,8 +500,12 @@ public class MainActivity extends AppCompatActivity
                 response.append(resultPair.second+". 라고 전송했습니다.\"");
                 firebaseHelper.sendMessageToCareTaker(resultPair.second);
                 break;
-        }
 
+            case GroupConstants.INTENTION_BLUETOOTH :
+                response.append("블루투스 연결을 시도합니다.\"");
+                bluetoothHelper.connect();
+                break;
+        }
 
         //응답 출력
         responseTextView.setText(response.toString());

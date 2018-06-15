@@ -57,6 +57,9 @@ public class CustomizedSTT implements RecognitionListener {
             ((MainActivity) context).inferSentence(bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION).get(0));
         } catch (Exception e) {
             onError(0); //Exception일 경우 음성입력 재요청
+            e.printStackTrace();
+        } finally {
+            MainActivity.inputSpeech = true;
         }
     }
 
@@ -64,13 +67,14 @@ public class CustomizedSTT implements RecognitionListener {
     @Override
     public void onError(int i) {
         //System.out.println("onError");
-
+        MainActivity.inputSpeech = true; //다시 음성입력 받을 수 있도록 set
         MainActivity.responseTextView.setText("\"다시 한 번 말씀해주세요.\"");
         ((MainActivity)context).speak("다시 한 번 말씀해주세요.");
     }
 
     @Override
     public void onEndOfSpeech() {
+        MainActivity.inputSpeech = true; //다시 음성입력 받을 수 있도록 set
         stopListening();
         //System.out.println("onEndOfSpeech");
     }

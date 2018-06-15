@@ -73,20 +73,18 @@ public class BluetoothHelper {
         //기기를 찾을 수 없으면 리턴
         if(!found) {
             Toast.makeText(context, R.string.bluetooth_not_found, Toast.LENGTH_SHORT).show();
-
             return;
         }
 
         //마지막으로 블루투스 소켓 통신 활성화
         UUID PORT_UUID = UUID.fromString(context.getResources().getString(R.string.UUID));
         try {
-
             bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(PORT_UUID);
             bluetoothSocket.connect();
 
             //블루투스 소켓이 연결상태면 블루투스쓰레드 실행
             if(bluetoothSocket.isConnected()) {
-                bluetoothThread = new BluetoothThread(context, bluetoothSocket);
+                bluetoothThread = new BluetoothThread(context, bluetoothAdapter, bluetoothSocket);
                 bluetoothThread.start();
 
                 //블루투스 통신 성공을 알리기 위해 블루투스 이미지뷰 Visibility 바꾸기
@@ -97,8 +95,8 @@ public class BluetoothHelper {
 
         } catch (IOException e){
             Toast.makeText(context, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-        }
 
+        }
 
     }
 
@@ -129,7 +127,6 @@ public class BluetoothHelper {
         for(int i = 0; i < inputString.length(); i++){
             byteArray[i] = (byte) inputString.charAt(i);
         }
-
 
         //outputStream을 통해 데이터 전송
         try {
