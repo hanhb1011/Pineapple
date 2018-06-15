@@ -99,12 +99,6 @@ void wrong_vib(int b){
   delay(3000);   
   analogWrite(7, 0);
   }
-  
-  else if(b == 800){
-  analogWrite(7, 200);                     
-  delay(1000);   
-  analogWrite(7 , 0);
-  }
 }
 
 int compass(){
@@ -254,7 +248,7 @@ void loop(){
     }
   }
   
-  if(readSomething) {
+  if(readSomething && myString.toInt() <= 360 && 0 <= myString.toInt()) {
     input_angle = myString.toInt();
   }
   
