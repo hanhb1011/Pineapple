@@ -72,7 +72,7 @@ public class PathFragment extends DialogFragment {
 
     public void setMarker(){
         TMapMarkerItem startItem = new TMapMarkerItem();
-        startItem.setTMapPoint(new TMapPoint(navigation.getCurrentX(),navigation.getCurrentY()));
+        startItem.setTMapPoint(new TMapPoint(navigation.getCurrentY(),navigation.getCurrentX()));
         startItem.setName("현재위치");
         startItem.setVisible(TMapMarkerItem.VISIBLE);
 

@@ -83,17 +83,18 @@ public class MainActivity extends AppCompatActivity
         navi.setPreX(navi.getCurrentX());
         navi.setPreY(navi.getCurrentY());
 
-        if(navi.calcAngle()) {
-            try {
-                int data = (int) navi.getDestinationAngle();
-                bluetoothHelper.sendData(data + ""); //목적지 방위각 전송
-            } catch (Exception e) {
-                Toast.makeText(MainActivity.this, "TYPE ERROR", Toast.LENGTH_SHORT).show();
-            }
-        }
+
 
         if(navi.isStarted()){
             navi.stateCheck(lat,lon);
+            if(navi.calcAngle()) {
+                try {
+                    int data = (int) navi.getDestinationAngle();
+                    bluetoothHelper.sendData(data + ""); //목적지 방위각 전송
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "TYPE ERROR", Toast.LENGTH_SHORT).show();
+                }
+            }
             if(navi.getPrePlace()!=null){
                 firebaseHelper.addTrainData(new TrainData(
                         navi.getPrePlace().getY(),navi.getPrePlace().getX(),
@@ -144,7 +145,7 @@ public class MainActivity extends AppCompatActivity
     private VoiceRecognizer voiceRecognizer;
     public Tmap tmap;
     public MainHandler mainHandler;
-    public TextToSpeech tts;
+    public static TextToSpeech tts;
     public static ArrayList<Message> messageList;
     public static User user;
     public static FirebaseHelper firebaseHelper;
@@ -349,7 +350,7 @@ public class MainActivity extends AppCompatActivity
                             }
                             gps2 = new TMapGpsManager(MainActivity.this);
                             gps2.setMinTime(1000);
-                            gps2.setMinDistance(5);
+                            gps2.setMinDistance(3);
                             gps2.setProvider(gps2.GPS_PROVIDER);
                             gps2.OpenGps();
                             break;
@@ -578,13 +579,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     //음성 출력
-    public void speak(String text){
+    public static void speak(String text){
         if(tts==null)
             return;
 
         //음성 출력 (Minimum SDK version is 21)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            String utteranceId = String.valueOf(this.hashCode());
+            String utteranceId = String.valueOf(text.hashCode());
             try {
                 tts.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId);
             } catch (Exception e){
@@ -643,6 +644,14 @@ public class MainActivity extends AppCompatActivity
                             else {
                                 navi.startNavigation(mWay);
                                 navi.stateCheck(navi.getStartY(), navi.getStartX());
+                                if(navi.calcAngle()) {
+                                    try {
+                                        int data = (int) navi.getDestinationAngle();
+                                        bluetoothHelper.sendData(data + ""); //목적지 방위각 전송
+                                    } catch (Exception e) {
+                                        Toast.makeText(MainActivity.this, "TYPE ERROR", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
                                 naviTextView.append("fs : " + navi.getFeatureSize() + "\n");
                                 naviTextView.append("f : " + navi.getFeatureNumber() + " dis : " + navi.getDistance() + " angle : " +
                                         (int) navi.getDestinationAngle() + "\n");
