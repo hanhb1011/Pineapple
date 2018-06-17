@@ -4,8 +4,8 @@
 #include <EEPROM.h>
 #include <I2Cdev.h>
 #include <HMC5883L.h>
-//#include <MechaQMC5883.h>
 #define address 0x1E
+//#include <MechaQMC5883.h>
 //#include <LowPower.h>
 
 int in1Pin=12,in2Pin=11,in3Pin=10,in4Pin=9;
@@ -25,15 +25,15 @@ int wake = 0;
 int wake2 = 1;
 HMC5883L mag;
 int16_t mx, my, mz;
+int input_angle = -1;
 //int sleepPin = 6;
 //MechaQMC5883 qmc;
-int input_angle = -1;
 
 void setup(){
   pinMode(in1Pin,OUTPUT); pinMode(in2Pin,OUTPUT);
   pinMode(in3Pin,OUTPUT); pinMode(in4Pin,OUTPUT);
   pinMode(voiceRecoPin,INPUT);
-  //pinMode(sleepPin, INPUT);
+  
   BTSerial.begin(9600);
   Wire.begin();
   Serial.begin(9600);
@@ -45,19 +45,23 @@ void setup(){
   Wire.write(0x00); 
   Wire.endTransmission();
   mag.initialize();
-  //qmc.init();
-  //qmc.setMode(Mode_Continuous,ODR_200Hz,RNG_2G,OSR_256);
   init_motor(EEPROM.read(wake2));
+  //pinMode(sleepPin, INPUT);
+  //qmc.init();
+  //qmc.setMode(Mode_Continuous,ODR_200Hz,RNG_2G,OSR_256);  
 }
 
 int correct(int angle){
   if(abs(angle)>180) {
      if(angle>0){
         return angle-360;
-     } else {
+     }
+    else {
         return angle+360;
      }
-  } else {
+  }
+  
+  else {
     return angle;
   }
 }
@@ -78,19 +82,19 @@ void dir_cor(int dst_angle, int cur_angle){
   Serial.println("\n");
  
   if (init_angle >= 0)
- {
-  EEPROM.write(wake, init_angle);
-  EEPROM.write(wake2, 0);
- }
+  {
+    EEPROM.write(wake, init_angle);
+    EEPROM.write(wake2, 0);
+  }
 
   else if (init_angle < 0)
   {
-   EEPROM.write(wake, -init_angle);
-   EEPROM.write(wake2, 1);
+    EEPROM.write(wake, -init_angle);
+    EEPROM.write(wake2, 1);
   } 
   
- int val = map(final_angle,0,360,0,2048); 
- motor.step(-val);
+  int val = map(final_angle,0,360,0,2048); 
+  motor.step(-val);
 }
 
 void wrong_vib(int b){
@@ -111,6 +115,68 @@ int compass(){
   Serial.println((int)heading2);
   
   return heading2;
+  
+   /*
+  int x,y,z; //triple axis data
+  double angle;
+  
+  Wire.beginTransmission(address);
+  Wire.write(0x03);
+  Wire.endTransmission();
+ 
+  Wire.requestFrom(address, 6);
+  if(6<=Wire.available()){
+    x = Wire.read()<<8; //X msb
+    x |= Wire.read(); //X lsb
+    z = Wire.read()<<8; //Z msb
+    z |= Wire.read(); //Z lsb
+    y = Wire.read()<<8; //Y msb
+    y |= Wire.read(); //Y lsb
+  }  
+  angle = (double)atan2(y, x);
+  
+  float declinationAngle = -(8+26/60)*PI/180; 
+  angle += declinationAngle; 
+
+  if (angle < 0){
+    angle += 2*PI;
+  }
+
+  if (angle > 2*PI){
+    angle -= 2*PI;
+  }
+  
+ float bearing = angle * 180/PI;
+  
+  Serial.println("Azimuth : "+String(bearing));
+
+  angle = 0;
+  bearing = 0;
+
+  delay(500);
+
+  //return (int)bearing;
+  */
+
+  /*
+  int x,y,z;
+  int a;
+
+  qmc.read(&x,&y,&z);
+  a = qmc.azimuth(&y,&x);
+  Serial.print("x: ");
+  Serial.print(x);
+  Serial.print(" y: ");
+  Serial.print(y);
+  Serial.print(" z: ");
+  Serial.print(z);
+  Serial.print(" a: ");
+  Serial.print(a);
+  Serial.println();
+  delay(100);
+
+  return a;
+  */
 }
 
 void init_motor(int a){
@@ -119,7 +185,7 @@ void init_motor(int a){
   if(angle!=0){
     int val2 = map(angle,0,360,0,2048);
     
-      if (a>0) {
+    if (a>0) {
     motor.step(-val2);
     }
     
@@ -132,6 +198,7 @@ void init_motor(int a){
   EEPROM.write(wake, 0);
   EEPROM.write(wake2, 0);
 }
+
 /*
 void wakeUp()
 {
@@ -168,11 +235,11 @@ void voiceReco (int d)
 }
 
 void loop(){
-// int sleepButtonInput = digitalRead(sleepPin);
+//int sleepButtonInput = digitalRead(sleepPin);
   int voiceRecoInput = digitalRead(voiceRecoPin);
   bool readSomething = false;
   
-   while(mySerial.available())  
+  while (mySerial.available())  
   {
     int inChar = mySerial.read();
     if (isDigit(inChar) || inChar == '-'){
@@ -181,7 +248,7 @@ void loop(){
     }
   }
   
-  if(readSomething && myString.toInt() <= 360 && 0 <= myString.toInt()) {
+  if (readSomething && myString.toInt() <= 360 && 0 <= myString.toInt()) {
     input_angle = myString.toInt();
   }
   
@@ -200,7 +267,8 @@ void loop(){
     wake += sleepButtonInput;  
   }
   */
-//  sleepMode(sleepButtonInput);
+
+//sleepMode(sleepButtonInput);
   
   voiceReco(voiceRecoInput);
   
