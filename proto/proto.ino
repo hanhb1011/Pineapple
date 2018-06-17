@@ -75,12 +75,14 @@ void dir_cor(int dst_angle, int cur_angle){
   init_angle += final_angle;
   init_angle = correct(init_angle);
   
+  /*
   Serial.println(dst_angle);
   Serial.println(cur_angle);
   Serial.println(init_angle);
   Serial.println(final_angle);
   Serial.println("\n");
- 
+  */
+  
   if (init_angle >= 0)
   {
     EEPROM.write(wake, init_angle);
