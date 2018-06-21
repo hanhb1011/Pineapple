@@ -311,6 +311,7 @@ public class Navigation {
             isStarted = false;
             sSync = false;
             dSync = false;
+
         }else {
             currentFeature = features.get(featureNumber);
             if (currentFeature.getGeometry().getType().equals("Point")) { //type : Point

@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity
     private VoiceRecognizer voiceRecognizer;
     public Tmap tmap;
     public MainHandler mainHandler;
-    public TextToSpeech tts;
+    public static TextToSpeech tts;
     public static ArrayList<Message> messageList;
     public static User user;
     public static FirebaseHelper firebaseHelper;
@@ -578,13 +578,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     //음성 출력
-    public void speak(String text){
+    public static void speak(String text){
         if(tts==null)
             return;
 
         //음성 출력 (Minimum SDK version is 21)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            String utteranceId = String.valueOf(this.hashCode());
+            String utteranceId = String.valueOf(text.hashCode());
             try {
                 tts.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId);
             } catch (Exception e){
