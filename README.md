@@ -56,9 +56,60 @@ compass.ino : 아두이노 상에서 지자기 센서의 센서값을 이용하�
 Pineapple/proto/
 #### 파일 ####
 proto.ino : 아두이노와 아두이노에 설치한 모듈을 작동하기 위한 코딩. <br>
+    
+
+## 한효병 ##
+#### 디렉토리 ####
+Pineapple/Pineapple_Android/app/src/main/java/org/androidtown/pineapple_android
+#### 파일 ####
+BluetoothHelper.java : 블루투스 소켓 통신 구현 및 데이터 전송 메서드 구현 <br>
+BluetoothThread.java : 쓰레드를 통한 지팡이에서 보낸 데이터 수신부 구현 <br>
+ChatLogFragment.java : 챗봇과 대화 내용을 보여주는 대화형 프래그먼트 구현 <br>
+CustomizedSTT.java : 기존 Google STT를 상속받아서 사용자 UX에 맞는 커스터마이즈된 STT 구현 <br>
+FirebaseHelper.java : Firebase 서버 인터페이스 구현 (사용자, 위치정보, 트레이닝데이터, 메시지 CRUD) <br>
+GroupConstants.java : 글로벌 상수를 관리하기 위한 클래스 구현 <br>
+HelpFragment.java : 보호자에게 도움말을 보여주는 Fragment 구현 <br>
+MainActivity.java : TTS 구현, 뷰 및 클래스 초기화 메서드 구현 <br>
+MainHandler.java : 쓰레드나 콜백 메서드에서 UI를 Update하기 위한 핸들러 구현 <br>
+Message.java : 챗봇과의 메시지 모델 클래스 작성 <br>
+MessageAdapter.java : 챗봇과 메시지를 리스트 형태로 띄우기 위한 어댑터 구현 <br>
+SharedPreferenceHelper.java : 사용자가 고유로 입력받은 key를 로컬 저장소에 저장하기 위한 클래스 구현 <br>
+Tmap.java : Tmap API를 이용하여 POI 기반으로 위치정보를 불러오는 클래스 구현 <br>
+VoiceRecognizer.java : 음성인식 결과로 나온 텍스트를 기반으로 의도를 추론하는 챗봇 클래스 구현 <br>
+
+
+#### 디렉토리 ####
+Pineapple/CareTaker_Android/app/src/main/java/com/example/hanhb/caretaker_android
+#### 파일 ####
+LogActivity.java : 시각장애인의 경로 안내 기록을 열람하는 액티비티 구현 <br>
+LogAdapter.java	: 시각장애인의 경로 안내를 Recycler View로 출력하기 위한 어댑터 클래스 구현 <br>
+MainActivity.java : 시각장애인용 앱에서 기능 목록을 보여주는 액티비티 구현 <br>
+MyHandler.java : StatusActivity 내에서 실시간으로 위치정보를 받아오고, UI를 업데이트하기위한 핸들러 구현 <br>
+SignInActivity.java : 시각장애인과의 연결을 위한 인증 기능 구현 <br>
+StatusActivity.java : 시각장애인의 실시간 위치정보 확인 액티비티 <br>
+VoiceMessageActivity.java : 시각장애인이 보낸 음성메시지를 확인하기 위한 액티비티 구현 <br>
+VoiceMessageAdapter.java : 음성메시지를 RecyclerView로 출력하기 위한 어댑터 구현 <br>
+
+
+#### 디렉토리 ####
+Pineapple/CareTaker_Android/app/src/main/java/com/example/hanhb/caretaker_android <br>
+Pineapple/Pineapple_Android/app/src/main/java/org/androidtown/pineapple_android 
+#### 파일 ####
+User.java : 사용자 모델 클래스 작성 <br>
+VoiceMessage.java : 음성메시지 모델 클래스 작성 <br>
+Node.java : 위치 정보를 포함하는 모델 클래스 작성 <br>
+RouteNavigation.java : 경로 안내 모델 클래스 작성 <br>
+
             
+#### 디렉토리 ####
+Pineapple/Pineapple_Android/app/src/main/res/layout <br>
+Pineapple/CareTaker_Android/app/src/main/res/layout
+#### 파일 ####
+*.xml 파일들 : View 작성
+
+
+
 주요 기능 <br>
-            
 1) 블루투스 모듈 <br>
 
    안드로이드와 통신하기 위한 블루투스 모듈. 간단한 String 값 송신 및 수신을 담당한다. <br>
