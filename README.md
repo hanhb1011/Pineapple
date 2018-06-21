@@ -106,7 +106,7 @@ SharedPreferenceHelper.java : 사용자가 고유로 입력받은 key를 로컬 
 Tmap.java : Tmap API를 이용하여 POI 기반으로 위치정보를 불러오는 클래스 구현 <br>
 VoiceRecognizer.java : 음성인식 결과로 나온 텍스트를 기반으로 의도를 추론하는 챗봇 클래스 구현 <br>
 
-
+<br>
 #### 디렉토리 ####
 Pineapple/CareTaker_Android/app/src/main/java/com/example/hanhb/caretaker_android
 #### 파일 ####
@@ -119,7 +119,7 @@ StatusActivity.java : 시각장애인의 실시간 위치정보 확인 액티비
 VoiceMessageActivity.java : 시각장애인이 보낸 음성메시지를 확인하기 위한 액티비티 구현 <br>
 VoiceMessageAdapter.java : 음성메시지를 RecyclerView로 출력하기 위한 어댑터 구현 <br>
 
-
+<br>
 #### 디렉토리 ####
 Pineapple/CareTaker_Android/app/src/main/java/com/example/hanhb/caretaker_android <br>
 Pineapple/Pineapple_Android/app/src/main/java/org/androidtown/pineapple_android 
@@ -129,11 +129,11 @@ VoiceMessage.java : 음성메시지 모델 클래스 작성 <br>
 Node.java : 위치 정보를 포함하는 모델 클래스 작성 <br>
 RouteNavigation.java : 경로 안내 모델 클래스 작성 <br>
 
-            
+<br>            
 #### 디렉토리 ####
 Pineapple/Pineapple_Android/app/src/main/res/layout <br>
 Pineapple/CareTaker_Android/app/src/main/res/layout
-#### 파일 ####ㅅ 
+#### 파일 ####
 *.xml 파일들 : View 작성
   
 # 시각장애인용 애플리케이션 #
