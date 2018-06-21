@@ -3,16 +3,23 @@
 
 # 코드 기여도 #
 
-??
+ ??
 
 
 
-# 시각장애인용 애플리케이션 & 방향 안내 지팡이 #
+# 시각장애인용 애플리케이션#
 <p align="center">
   <img src="sources/1.png" width="250"/>
-  <img src="sources/5.jpg" width="250"/>
+  <img src="sources/6.png" width="250"/>
+  <img src="sources/7.png" width="250"/>
 </p>
 <br>
+
+# 방향 안내 지팡이 #
+<p align="center">
+  <img src="sources/5.jpg" width="250"/>
+</p>
+
 
 # 보호자용 애플리케이션 #
 <p align="center">
