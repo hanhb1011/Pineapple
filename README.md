@@ -5,9 +5,8 @@
 
  ??
 
-
-
-# 시각장애인용 애플리케이션#
+ 
+# 시각장애인용 애플리케이션 #
 <p align="center">
   <img src="sources/1.png" width="250"/>
   <img src="sources/6.png" width="250"/>
