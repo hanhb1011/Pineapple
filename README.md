@@ -15,7 +15,7 @@ checkpoint, frozen_test2.pb, optimized_test2.pb, test.pb, test2.ckpt.data-00000-
 #### 디렉토리 ####
 Pineapple/Pineapple_Android/app/src/main/java/org/androidtown/pineapple_android/Model
 #### 파일 ####
-Feature.java, FindTheWay.java, FindTheWayRequest.java, Geometry.java, Place.java, Properties.java : T Map API를 사용하여 출발지부터 목적지까지 경로 정보를 담는 모델 클래스 <br>
+Feature.java, FindTheWay.java, FindTheWayRequest.java, Geometry.java, Place.java, Properties.java : T Map API를 사용하여 얻은 json 형식의 데이터를 파싱하여 얻는 데이터를 담는 모델 클래스 <br>
 
 #### 디렉토리 ####
 Pineapple/Pineapple_Android/app/src/main/java/org/androidtown/pineapple_android/Retrofit
