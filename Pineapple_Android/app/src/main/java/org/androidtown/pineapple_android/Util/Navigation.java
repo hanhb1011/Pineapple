@@ -51,8 +51,15 @@ public class Navigation {
 
     private static boolean firstLocation=false;
 
+    private RouteNavigation routeNavigation;
 
+    public RouteNavigation getRouteNavigation() {
+        return routeNavigation;
+    }
 
+    public void setRouteNavigation(RouteNavigation routeNavigation) {
+        this.routeNavigation = routeNavigation;
+    }
 
     private TMapPolyLine[] tMapPolyLines;
 
@@ -268,7 +275,7 @@ public class Navigation {
         ArrayList<TMapPoint> alTMapPoint = new ArrayList<>();
 
         //서버에 저장할 경로안내 클래스 정의
-        RouteNavigation routeNavigation = new RouteNavigation(startX,startY,endX,endY, Tmap.lastPOIItem.getPOIName(),
+        routeNavigation = new RouteNavigation(startX,startY,endX,endY, Tmap.lastPOIItem.getPOIName(),
                 Tmap.lastPOIItem.getPOIAddress(),navi.getDistanceFromLatLon(startX,startY,endX,endY));
 
 
@@ -289,6 +296,7 @@ public class Navigation {
         routeNavigation.setNodes(nodes);
         if(MainActivity.firebaseHelper != null) {
             MainActivity.firebaseHelper.addRouteNavigation(routeNavigation);
+
         }
 
 
