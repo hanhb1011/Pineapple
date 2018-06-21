@@ -161,4 +161,6 @@ Pineapple/CareTaker_Android/app/src/main/res/layout
 # Developer #
 한효병 이기혁 범효원 박근준
 
+# 동영상 #
+<iframe width="560" height="315" src="https://www.youtube.com/embed/kfFfDCdy_5Q" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
