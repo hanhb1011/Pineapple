@@ -47,10 +47,19 @@ public class Navigation {
     private double preDistance = 1000;
     private double distance = 0.0d;
 
+    private final int boundary = 10;
+
     private static boolean firstLocation=false;
 
+    private RouteNavigation routeNavigation;
 
+    public RouteNavigation getRouteNavigation() {
+        return routeNavigation;
+    }
 
+    public void setRouteNavigation(RouteNavigation routeNavigation) {
+        this.routeNavigation = routeNavigation;
+    }
 
     private TMapPolyLine[] tMapPolyLines;
 
@@ -266,7 +275,7 @@ public class Navigation {
         ArrayList<TMapPoint> alTMapPoint = new ArrayList<>();
 
         //서버에 저장할 경로안내 클래스 정의
-        RouteNavigation routeNavigation = new RouteNavigation(startX,startY,endX,endY, Tmap.lastPOIItem.getPOIName(),
+        routeNavigation = new RouteNavigation(startX,startY,endX,endY, Tmap.lastPOIItem.getPOIName(),
                 Tmap.lastPOIItem.getPOIAddress(),navi.getDistanceFromLatLon(startX,startY,endX,endY));
 
 
@@ -287,6 +296,7 @@ public class Navigation {
         routeNavigation.setNodes(nodes);
         if(MainActivity.firebaseHelper != null) {
             MainActivity.firebaseHelper.addRouteNavigation(routeNavigation);
+
         }
 
 
@@ -308,10 +318,15 @@ public class Navigation {
         featureNumber++;
         lineNumber = 1;
         if(featureNumber==featureSize){//네비게이션 종료
+<<<<<<< HEAD
             isStarted = false;
             sSync = false;
             dSync = false;
 
+=======
+            MainActivity.speak("목적지에 도착했습니다.\n 안내를 종료합니다.");
+            terminate();
+>>>>>>> 9e6a1be2a8f327601a6570364ffa6d20c578b5f1
         }else {
             currentFeature = features.get(featureNumber);
             if (currentFeature.getGeometry().getType().equals("Point")) { //type : Point
@@ -323,7 +338,7 @@ public class Navigation {
                 currentPlace = new Place(x,y,featureNumber);
 
                 distance = getDistanceFromLatLon(x,y,currentX,currentY);
-                if(distance<=10){
+                if(distance<=boundary){
                     nextFeature();
                 }
             } else { //type : LineString
@@ -390,7 +405,7 @@ public class Navigation {
                 leaveWayCount = 0;
             }
 
-            if(distance<=10){
+            if(distance<=boundary){
                 nextFeature();
             }
         }else{//type : LineString
@@ -409,7 +424,7 @@ public class Navigation {
             }
 
 
-            if(distance <= 10){ //LineString 진행중
+            if(distance <= boundary){ //LineString 진행중
                 lineNumber++;
                 if(currentPlaces.size() == lineNumber){//linestring 끝 도달
                     nextFeature();
@@ -435,11 +450,21 @@ public class Navigation {
     }
 
 
-    private double getAngle(double x, double y){
-        double angle =  Math.atan2(y,x) - Math.atan2(1,0);
-        if(angle<0) angle += 2*Math.PI;
-        return Math.toDegrees(angle);
+//    private double getAngle(double x, double y){
+//        double angle =  Math.atan2(y,x) - Math.atan2(1,0);
+//        if(angle<0) angle += 2*Math.PI;
+//        return Math.toDegrees(angle);
+//    }
+
+    private double getAngle(double lon1, double lat1, double lon2, double lat2){
+        double y = Math.sin(lon2-lon1) * Math.cos(lat2);
+        double x = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1);
+        double bearing = Math.toDegrees(Math.atan2(y, x));
+
+        bearing = ( bearing + 360 ) % 360;
+        return bearing;
     }
+
 
     public boolean calcAngle() {
         //컴퍼스 센서 방위각 계산
@@ -449,7 +474,8 @@ public class Navigation {
             double dX = currentPlace.getX();
             double dY = currentPlace.getY();
 
-            destinationAngle = getAngle(dX - currentX, dY - currentY);
+            //destinationAngle = getAngle(currentX - dX, currentY - dY);
+            destinationAngle = getAngle(currentX, currentY, dX, dY);
             return true;
         }
         return false;
