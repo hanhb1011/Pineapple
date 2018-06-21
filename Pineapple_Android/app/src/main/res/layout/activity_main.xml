@@ -38,6 +38,7 @@
 
     <EditText
         android:id="@+id/test_et"
+        android:visibility="gone"
         android:maxLines="1"
         android:maxWidth="100dp"
         app:layout_constraintTop_toTopOf="parent"
@@ -48,6 +49,7 @@
 
     <Button
         android:id="@+id/test_btn"
+        android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toRightOf="@id/test_et"
         app:layout_constraintRight_toRightOf="@id/activity_btn"
