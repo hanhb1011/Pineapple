@@ -318,15 +318,12 @@ public class Navigation {
         featureNumber++;
         lineNumber = 1;
         if(featureNumber==featureSize){//네비게이션 종료
-<<<<<<< HEAD
             isStarted = false;
             sSync = false;
             dSync = false;
 
-=======
             MainActivity.speak("목적지에 도착했습니다.\n 안내를 종료합니다.");
             terminate();
->>>>>>> 9e6a1be2a8f327601a6570364ffa6d20c578b5f1
         }else {
             currentFeature = features.get(featureNumber);
             if (currentFeature.getGeometry().getType().equals("Point")) { //type : Point
